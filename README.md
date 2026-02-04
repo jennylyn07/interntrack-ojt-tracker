@@ -1,3 +1,28 @@
+# OJT Tracker – Student Dashboard
+
+OJT Tracker is a **full-stack web application** designed for students to efficiently manage and track their On-the-Job Training (OJT) progress. 
+
+With this system, students can:
+
+- Log daily OJT activities with task descriptions, hours rendered, and optional notes.
+- Track total and remaining OJT hours.
+- Monitor progress through a dynamic dashboard.
+- Manage personal OJT information such as company, start date, and required hours.
+
+This project is built with:
+
+- **Next.js (App Router)** – modern React framework for server-side rendering and routing
+- **MySQL** – relational database for storing users and logs
+- **Prisma ORM** – for database management and queries
+- **NextAuth.js** – session-based authentication
+- **Plain CSS** – custom styling for a clean, responsive interface
+
+OJT Tracker is **portfolio-ready** and demonstrates full-stack development skills, authentication, RESTful APIs, database integration, and real-world problem solving.
+
+
+
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
