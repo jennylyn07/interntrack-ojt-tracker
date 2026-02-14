@@ -1,14 +1,9 @@
-import Link from "next/link";
-import styles from "./page.module.css";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <main style={{ padding: "2rem" }}>
-      <h1>OJT Tracker</h1>
-      <p>Student OJT Tracking System</p>
-      <p style={{ marginTop: "1rem" }}>
-        <Link href="/dashboard">Go to Dashboard</Link>
-      </p>
-    </main>
-  );
+  // For the current phase of the project, the dashboard is the main experience.
+  // Redirecting here keeps localhost:3000 aligned with your primary UI.
+  // TODO (Later): Once auth is implemented, redirect based on session state
+  // (e.g., unauthenticated -> /auth/signin, authenticated -> /dashboard).
+  redirect("/dashboard");
 }
