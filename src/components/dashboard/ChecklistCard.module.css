@@ -1,0 +1,100 @@
+/* File: src/components/dashboard/ChecklistCard.module.css
+   Purpose: Styles for interactive checklist.
+   Accessibility:
+   - Each list item is a full button with min 48px height.
+*/
+
+.card {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-outer);
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.subtitle {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  color: rgba(0, 13, 12, 0.7);
+}
+
+:root[data-theme="dark"] .subtitle {
+  color: rgba(242, 242, 240, 0.75);
+}
+
+.list {
+  margin-top: var(--space-2);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.listItem {
+  border-radius: var(--radius-md);
+}
+
+.itemButton {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-2);
+
+  border: 0;
+  border-radius: var(--radius-md);
+
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--transition-fast) ease, box-shadow var(--transition-med) ease;
+}
+
+.itemButton:hover {
+  transform: translateY(-1px);
+}
+
+.itemButton:active {
+  transform: translateY(0);
+}
+
+.checkOn,
+.checkOff {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  flex: none;
+}
+
+.checkOff {
+  box-shadow: var(--shadow-soft-outer);
+  background: var(--surface);
+}
+
+.checkOn {
+  background: var(--accent);
+  box-shadow: var(--shadow-soft-outer);
+}
+
+.label {
+  font-size: 0.95rem;
+  color: rgba(0, 13, 12, 0.9);
+}
+
+:root[data-theme="dark"] .label {
+  color: rgba(242, 242, 240, 0.9);
+}

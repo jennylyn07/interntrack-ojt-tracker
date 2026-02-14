@@ -1,0 +1,51 @@
+/* File: src/components/dashboard/QuickActions.module.css
+   Purpose: Styles for quick action buttons.
+*/
+
+.card {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-outer);
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.actions {
+  margin-top: var(--space-2);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-1);
+}
+
+.action {
+  min-height: 48px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: 999px;
+
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-outer);
+
+  cursor: pointer;
+  text-align: left;
+  color: rgba(0, 13, 12, 0.9);
+
+  transition: transform var(--transition-fast) ease, box-shadow var(--transition-med) ease;
+}
+
+:root[data-theme="dark"] .action {
+  color: rgba(242, 242, 240, 0.9);
+}
+
+.action:hover {
+  transform: translateY(-1px);
+}
+
+.action:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-soft-inner);
+}

@@ -1,0 +1,100 @@
+/* File: src/components/dashboard/ActivityTimeline.module.css
+   Purpose: Styles for timeline list.
+   Layout:
+   - Mobile-first list with subtle dividers.
+   - Easy vertical scanning.
+*/
+
+.card {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-outer);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: rgba(0, 13, 12, 0.7);
+}
+
+:root[data-theme="dark"] .subtitle {
+  color: rgba(242, 242, 240, 0.75);
+}
+
+.list {
+  margin-top: var(--space-2);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: var(--space-2);
+  padding: var(--space-2);
+
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+}
+
+.date {
+  font-size: 0.9rem;
+  color: rgba(0, 13, 12, 0.65);
+}
+
+:root[data-theme="dark"] .date {
+  color: rgba(242, 242, 240, 0.7);
+}
+
+.content {
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.itemTitle {
+  font-size: 0.95rem;
+  color: rgba(0, 13, 12, 0.9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:root[data-theme="dark"] .itemTitle {
+  color: rgba(242, 242, 240, 0.9);
+}
+
+.hours {
+  flex: none;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.type {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: rgba(0, 13, 12, 0.6);
+}
+
+:root[data-theme="dark"] .type {
+  color: rgba(242, 242, 240, 0.7);
+}

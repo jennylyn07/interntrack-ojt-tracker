@@ -1,0 +1,11 @@
+/* File: src/app/dashboard/layout.module.css
+   Purpose: Provides the overall dashboard page shell.
+   Mobile-first:
+   - Centered content with comfortable padding.
+*/
+
+.shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-3);
+}

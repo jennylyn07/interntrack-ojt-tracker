@@ -1,0 +1,61 @@
+/* File: src/components/dashboard/DashboardHeader.module.css
+   Purpose: Styles for the dashboard header.
+   Design intent: calm, academic, minimal neumorphism.
+*/
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-outer);
+}
+
+.left {
+  min-width: 0;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.appTitle {
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(0, 13, 12, 0.65);
+}
+
+:root[data-theme="dark"] .appTitle {
+  color: rgba(242, 242, 240, 0.7);
+}
+
+.studentName {
+  margin-top: 2px;
+  font-size: 1.4rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.meta {
+  margin-top: var(--space-1);
+  font-size: 0.95rem;
+  color: rgba(0, 13, 12, 0.7);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+:root[data-theme="dark"] .meta {
+  color: rgba(242, 242, 240, 0.75);
+}
+
+.metaItem {
+  white-space: nowrap;
+}

@@ -1,0 +1,45 @@
+/* File: src/app/dashboard/page.module.css
+   Purpose: Dashboard page layout styles (grid).
+   Why CSS Modules?
+   - Layout rules are specific to this page route.
+   - Keeps global CSS clean and scalable.
+*/
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+.leftColumn,
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Desktop scaling:
+   - Two-column layout
+   - Timeline spans full width below
+*/
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .timeline {
+    grid-column: 1 / -1;
+  }
+}

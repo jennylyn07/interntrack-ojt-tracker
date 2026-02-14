@@ -1,0 +1,103 @@
+/* File: src/components/dashboard/DailyLogCard.module.css
+   Purpose: Styles for daily log preview card.
+*/
+
+.card {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-outer);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.date {
+  font-size: 0.9rem;
+  color: rgba(0, 13, 12, 0.65);
+}
+
+:root[data-theme="dark"] .date {
+  color: rgba(242, 242, 240, 0.7);
+}
+
+.body {
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+}
+
+.hoursRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.hoursLabel {
+  color: rgba(0, 13, 12, 0.7);
+  font-size: 0.95rem;
+}
+
+:root[data-theme="dark"] .hoursLabel {
+  color: rgba(242, 242, 240, 0.75);
+}
+
+.hoursValue {
+  font-weight: 750;
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.previewLabel {
+  margin-top: var(--space-2);
+  font-size: 0.85rem;
+  color: rgba(0, 13, 12, 0.6);
+}
+
+:root[data-theme="dark"] .previewLabel {
+  color: rgba(242, 242, 240, 0.7);
+}
+
+.previewText {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: rgba(0, 13, 12, 0.85);
+}
+
+:root[data-theme="dark"] .previewText {
+  color: rgba(242, 242, 240, 0.88);
+}
+
+.cta {
+  min-height: 48px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-outer);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform var(--transition-fast) ease, box-shadow var(--transition-med) ease;
+}
+
+.cta:hover {
+  transform: translateY(-1px);
+}
+
+.cta:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-soft-inner);
+}

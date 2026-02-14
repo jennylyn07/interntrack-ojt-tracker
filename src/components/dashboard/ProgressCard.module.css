@@ -1,0 +1,95 @@
+/* File: src/components/dashboard/ProgressCard.module.css
+   Purpose: Styles for the main progress card.
+   Neumorphism logic:
+   - Card uses outer shadow for soft elevation.
+   - Progress track uses inner shadow for “pressed-in” groove.
+*/
+
+.card {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-outer);
+}
+
+.topRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 650;
+}
+
+.subtitle {
+  margin-top: 4px;
+  color: rgba(0, 13, 12, 0.7);
+  font-size: 0.95rem;
+}
+
+:root[data-theme="dark"] .subtitle {
+  color: rgba(242, 242, 240, 0.75);
+}
+
+.percent {
+  min-width: 64px;
+  height: 48px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stats {
+  margin-top: var(--space-3);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.stat {
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+}
+
+.statLabel {
+  font-size: 0.85rem;
+  color: rgba(0, 13, 12, 0.65);
+}
+
+:root[data-theme="dark"] .statLabel {
+  color: rgba(242, 242, 240, 0.7);
+}
+
+.statValue {
+  margin-top: 4px;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.progressTrack {
+  margin-top: var(--space-3);
+  height: 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), rgba(76, 115, 111, 0.7));
+  transition: width var(--transition-med) ease;
+}

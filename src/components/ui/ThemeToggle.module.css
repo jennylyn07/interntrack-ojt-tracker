@@ -1,0 +1,42 @@
+/* File: src/components/ui/ThemeToggle.module.css
+   Purpose: Styles for the ThemeToggle client component.
+   Why CSS Modules?
+   - Keeps styles scoped to this component (no global leakage).
+   - Makes it safe to evolve UI without worrying about selector collisions. */
+
+.button {
+  /* 48px tap target: accessibility + mobile-first requirement */
+  min-width: 48px;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-primary);
+
+  /* Neumorphism: subtle outer shadow on the control */
+  box-shadow: var(--shadow-soft-outer);
+
+  cursor: pointer;
+  transition: transform var(--transition-fast) ease,
+    box-shadow var(--transition-med) ease,
+    background-color var(--transition-med) ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
+  /* A slight “pressed” feel using an inner shadow */
+  box-shadow: var(--shadow-soft-inner);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
