@@ -12,3 +12,47 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id         String          @id @default(cuid())
+  email      String          @unique
+  password   String
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  profile    OJTProfile?
+  logEntries LogEntry[]
+  checklist  ChecklistItem[]
+}
+
+model OJTProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  company       String
+  supervisor    String
+  requiredHours Int
+  startDate     DateTime
+  endDate       DateTime?
+
+  user          User     @relation(fields: [userId], references: [id])
+}
+
+model LogEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  date        DateTime
+  description String
+  hours       Float
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model ChecklistItem {
+  id        String  @id @default(cuid())
+  userId    String
+  title     String
+  completed Boolean @default(false)
+
+  user      User    @relation(fields: [userId], references: [id])
+}
