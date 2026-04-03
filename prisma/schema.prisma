@@ -7,6 +7,13 @@ datasource db {
   provider = "postgresql"
 }
 
+enum InternshipStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id          String       @id @default(cuid())
   email       String       @unique
@@ -24,10 +31,12 @@ model Internship {
   requiredHours Int
   startDate     DateTime
   endDate       DateTime?
-  status        String
+  status        InternshipStatus  @default(PENDING)
   checklist     ChecklistItem[]
   user          User            @relation(fields: [userId], references: [id])
   logEntries    LogEntry[]
+
+  @@index([userId])
 }
 
 model LogEntry {
@@ -38,6 +47,8 @@ model LogEntry {
   createdAt    DateTime   @default(now())
   internshipId String
   internship   Internship @relation(fields: [internshipId], references: [id])
+
+  @@index([internshipId])
 }
 
 model ChecklistItem {
@@ -46,4 +57,6 @@ model ChecklistItem {
   completed    Boolean    @default(false)
   internshipId String
   internship   Internship @relation(fields: [internshipId], references: [id])
+
+  @@index([internshipId])
 }
