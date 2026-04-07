@@ -1,30 +1,36 @@
 // File: src/components/dashboard/QuickActions.js
 // Purpose: Provide fast navigation/actions a student commonly needs.
 //
-// Architecture note:
-// - Server Component: these are simple links/buttons.
-// - Later: wire to real routes (Add Log, Profile, Report) once implemented.
+// Phase 6: Wired up Add Log and Edit Profile to real routes.
+// Download Report remains a placeholder until Phase 8.
 
+import Link from "next/link";
 import styles from "./QuickActions.module.css";
 
-// Component: QuickActions
-// Props: none (static for now)
 export default function QuickActions() {
   return (
     <section className={styles.card} aria-label="Quick actions">
       <h2 className={styles.title}>Quick Actions</h2>
 
       <div className={styles.actions}>
-        {/* TODO: Replace with <Link href="/logs/new"> once route exists */}
-        <button type="button" className={styles.action} aria-label="Add log">
+        {/* Phase 6: Wired to real route */}
+        <Link href="/dashboard/logs/new" className={styles.action}>
           Add Log
-        </button>
-        {/* TODO: Replace with <Link href="/profile"> once route exists */}
-        <button type="button" className={styles.action} aria-label="Edit profile">
+        </Link>
+
+        {/* Phase 6: Wired to real route */}
+        <Link href="/dashboard/profile" className={styles.action}>
           Edit Profile
-        </button>
-        {/* TODO: Replace with actual report download (API route generating PDF/CSV) */}
-        <button type="button" className={styles.action} aria-label="Download report">
+        </Link>
+
+        {/* Phase 8: Will generate PDF/CSV report */}
+        <button
+          type="button"
+          className={styles.action}
+          aria-label="Download report"
+          disabled
+          title="Coming in Phase 8"
+        >
           Download Report
         </button>
       </div>

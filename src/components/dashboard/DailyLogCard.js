@@ -1,10 +1,9 @@
 // File: src/components/dashboard/DailyLogCard.js
 // Purpose: Show a quick preview of today's latest log and provide a clear CTA.
 //
-// Architecture note:
-// - Server Component (static preview; no client state needed).
-// - Later: connect to Prisma OjtLog queries (latest log / today's log).
+// Phase 6: Wired up "Add New Log" button to real route.
 
+import Link from "next/link";
 import styles from "./DailyLogCard.module.css";
 
 // Component: DailyLogCard
@@ -22,7 +21,7 @@ export default function DailyLogCard({ todayLog }) {
 
       <div className={styles.body}>
         <div className={styles.hoursRow}>
-          <p className={styles.hoursLabel}>Today’s hours</p>
+          <p className={styles.hoursLabel}>Today's hours</p>
           <p className={styles.hoursValue}>{todayLog?.hoursToday ?? 0}</p>
         </div>
 
@@ -34,11 +33,10 @@ export default function DailyLogCard({ todayLog }) {
         </p>
       </div>
 
-      {/* CTA is a button for now.
-          TODO (Next step): point this to a real route like /logs/new or /dashboard/logs/new. */}
-      <button type="button" className={styles.cta} aria-label="Add a new log">
+      {/* Phase 6: Wired to real route */}
+      <Link href="/dashboard/logs/new" className={styles.cta}>
         Add New Log
-      </button>
+      </Link>
     </section>
   );
 }

@@ -18,6 +18,11 @@ import QuickActions from "@/components/dashboard/QuickActions";
 
 import styles from "./page.module.css";
 
+// ============================================================
+// TEMPORARY: Replace this in Phase 7 with real session userId
+// ============================================================
+const TEMP_USER_ID = "temp-user-1";
+
 function formatNowLabel(date) {
   // Teaching note:
   // We format on the server to provide a consistent initial render.
@@ -35,7 +40,7 @@ export default async function DashboardPage() {
   // Data source is abstracted.
   // TODO (Next step): replace this with getDashboardOverview(userId)
   // where `userId` comes from NextAuth's session.
-  const data = await getDashboardOverview();
+  const data = await getDashboardOverview(TEMP_USER_ID);
   const nowLabel = formatNowLabel(new Date());
 
   return (

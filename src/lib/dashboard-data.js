@@ -1,97 +1,129 @@
 // File: src/lib/dashboard-data.js
 // Purpose: Central place for dashboard data fetching.
-// This file currently returns mock data so the UI can be developed and
-// understood in isolation. Later, you will replace these functions with
-// real Prisma queries that load data for the authenticated student.
+// Phase 6: Now uses real Prisma queries instead of mock data.
+// Phase 7: Replace TEMP_USER_ID with real session userId from NextAuth.
 
-// NOTE FOR FUTURE YOU:
-// - Once NextAuth is configured, dashboard server components can call a
-//   function like `getDashboardOverview(userId)` where `userId` comes from
-//   the session.
-// - Inside that function you will use Prisma models such as User,
-//   StudentProfile and OjtLog to compute the same shape of data that the
-//   dashboard components expect today.
+import { prisma } from "@/lib/prisma";
 
-// Returns a high-level summary object used by the dashboard page.
-// Keeping this as a single function means the UI is not tightly coupled
-// to the eventual database schema – only this layer needs updating.
-export async function getDashboardOverview() {
-  // In a real app this would be an async database call.
-  // We keep it async already so that swapping in Prisma later
-  // does not change the calling code.
+// ============================================================
+// TEMPORARY: Replace this in Phase 7 with real session userId
+// ============================================================
+const TEMP_USER_ID = "temp-user-1";
 
-  const student = {
-    // Mock student identity – this will later come from `User` + `StudentProfile`.
-    name: "Jamie Cruz",
-    program: "BS Information Technology",
-    company: "Acme Software Solutions",
-  };
+// -------------------------------------------------------
+// Helper: Get today's date range (start and end of today)
+// -------------------------------------------------------
+function getTodayRange() {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+  return { start, end };
+}
 
-  const requiredHours = 600;
-  const completedHours = 180;
-  const remainingHours = requiredHours - completedHours;
-  const percentage = Math.max(
-    0,
-    Math.min(100, Math.round((completedHours / requiredHours) * 100))
+// -------------------------------------------------------
+// getDashboardOverview(userId?)
+// Returns all data needed by the dashboard page.
+// Shape is kept identical to the mock version so no
+// dashboard component needs to change.
+// -------------------------------------------------------
+export async function getDashboardOverview(userId = TEMP_USER_ID) {
+  // Step 1: Get the user
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  // Step 2: Get the active internship for this user
+  const internship = await prisma.internship.findFirst({
+    where: {
+      userId,
+      status: "ACTIVE",
+    },
+    orderBy: { startDate: "desc" },
+  });
+
+  // Step 3: If no internship found, return a safe empty state
+  if (!internship) {
+    return {
+      student: {
+        name: user?.email ?? "Student",
+        program: "",
+        company: null,
+      },
+      progress: {
+        requiredHours: 0,
+        completedHours: 0,
+        remainingHours: 0,
+        percentage: 0,
+      },
+      todayLog: {
+        date: new Date().toISOString().slice(0, 10),
+        hoursToday: 0,
+        summary: null,
+        hasLog: false,
+      },
+      checklistItems: [],
+      timeline: [],
+    };
+  }
+
+  // Step 4: Calculate completed hours from all log entries
+  const logEntries = await prisma.logEntry.findMany({
+    where: { internshipId: internship.id },
+    orderBy: { date: "desc" },
+  });
+
+  const completedHours = logEntries.reduce(
+    (sum, entry) => sum + entry.hours,
+    0
   );
+  const requiredHours = internship.requiredHours;
+  const remainingHours = Math.max(0, requiredHours - completedHours);
+  const percentage = requiredHours > 0
+    ? Math.max(0, Math.min(100, Math.round((completedHours / requiredHours) * 100)))
+    : 0;
 
+  // Step 5: Get today's log entry if it exists
+  const { start, end } = getTodayRange();
+  const todayEntries = logEntries.filter(entry => {
+    const entryDate = new Date(entry.date);
+    return entryDate >= start && entryDate <= end;
+  });
+
+  const hoursToday = todayEntries.reduce(
+    (sum, entry) => sum + entry.hours,
+    0
+  );
   const todayLog = {
-    // In a real implementation you might filter OjtLog by `date = today`.
     date: new Date().toISOString().slice(0, 10),
-    hoursToday: 4,
-    summary: "Shadowed senior developer during code review and documented notes.",
-    hasLog: true,
+    hoursToday,
+    summary: todayEntries[0]?.description ?? null,
+    hasLog: todayEntries.length > 0,
   };
 
-  const checklistItems = [
-    {
-      id: "orientation",
-      label: "Attend company orientation session",
-      completed: true,
-    },
-    {
-      id: "profile",
-      label: "Complete OJT profile (company, start date, required hours)",
-      completed: false,
-    },
-    {
-      id: "first-log",
-      label: "Submit your first daily log entry",
-      completed: true,
-    },
-    {
-      id: "mid-report",
-      label: "Prepare mid-term OJT progress report",
-      completed: false,
-    },
-  ];
+  // Step 6: Get checklist items for this internship
+  const checklistItems = await prisma.checklistItem.findMany({
+    where: { internshipId: internship.id },
+    orderBy: { id: "asc" },
+  });
 
-  const timeline = [
-    {
-      id: "t1",
-      date: "2026-02-10",
-      title: "Backend bug fixing and testing",
-      hours: 6,
-      type: "log",
-    },
-    {
-      id: "t2",
-      date: "2026-02-08",
-      title: "Sprint planning meeting with mentor",
-      hours: 3,
-      type: "meeting",
-    },
-    {
-      id: "t3",
-      date: "2026-02-05",
-      title: "OJT orientation and environment setup",
-      hours: 5,
-      type: "milestone",
-    },
-  ];
+  // Step 7: Build timeline from last 3 log entries
+  const timeline = logEntries.slice(0, 3).map(entry => ({
+    id: entry.id,
+    date: entry.date.toISOString().slice(0, 10),
+    title: entry.description,
+    hours: entry.hours,
+    type: "log",
+  }));
 
+  // Step 8: Return the full dashboard data
+  // Shape is identical to mock version — no component changes needed
   return {
-    student,
+    student: {
+      name: user?.email ?? "Student",
+      program: "",
+      company: internship.company,
+    },
     progress: {
       requiredHours,
       completedHours,
@@ -99,8 +131,11 @@ export async function getDashboardOverview() {
       percentage,
     },
     todayLog,
-    checklistItems,
+    checklistItems: checklistItems.map(item => ({
+      id: item.id,
+      label: item.title,
+      completed: item.completed,
+    })),
     timeline,
   };
 }
-

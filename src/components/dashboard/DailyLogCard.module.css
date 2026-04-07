@@ -91,6 +91,11 @@
   color: var(--text-primary);
   cursor: pointer;
   transition: transform var(--transition-fast) ease, box-shadow var(--transition-med) ease;
+
+      /* Added: makes Link behave like button visually */
+  display: flex;
+  align-items: center;
+  text-decoration: none;
 }
 
 .cta:hover {
