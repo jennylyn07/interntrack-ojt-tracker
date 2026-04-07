@@ -18,6 +18,7 @@ import QuickActions from "@/components/dashboard/QuickActions";
 
 import styles from "./page.module.css";
 
+export const dynamic = "force-dynamic";
 // ============================================================
 // TEMPORARY: Replace this in Phase 7 with real session userId
 // ============================================================
