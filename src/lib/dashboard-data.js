@@ -1,14 +1,9 @@
 // File: src/lib/dashboard-data.js
 // Purpose: Central place for dashboard data fetching.
 // Phase 6: Now uses real Prisma queries instead of mock data.
-// Phase 7: Replace TEMP_USER_ID with real session userId from NextAuth.
+// Phase 7: Requires real session userId from Better Auth.
 
 import { prisma } from "@/lib/prisma";
-
-// ============================================================
-// TEMPORARY: Replace this in Phase 7 with real session userId
-// ============================================================
-const TEMP_USER_ID = "temp-user-1";
 
 // -------------------------------------------------------
 // Helper: Get today's date range (start and end of today)
@@ -22,12 +17,13 @@ function getTodayRange() {
 }
 
 // -------------------------------------------------------
-// getDashboardOverview(userId?)
+// getDashboardOverview(userId)
 // Returns all data needed by the dashboard page.
-// Shape is kept identical to the mock version so no
-// dashboard component needs to change.
 // -------------------------------------------------------
-export async function getDashboardOverview(userId = TEMP_USER_ID) {
+export async function getDashboardOverview(userId) {
+  if (!userId) {
+    throw new Error("getDashboardOverview: userId is required");
+  }
   // Step 1: Get the user
   const user = await prisma.user.findUnique({
     where: { id: userId },

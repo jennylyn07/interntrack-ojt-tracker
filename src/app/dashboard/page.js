@@ -15,14 +15,13 @@ import DailyLogCard from "@/components/dashboard/DailyLogCard";
 import ChecklistCard from "@/components/dashboard/ChecklistCard";
 import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
 import QuickActions from "@/components/dashboard/QuickActions";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
-// ============================================================
-// TEMPORARY: Replace this in Phase 7 with real session userId
-// ============================================================
-const TEMP_USER_ID = "temp-user-1";
 
 function formatNowLabel(date) {
   // Teaching note:
@@ -38,10 +37,15 @@ function formatNowLabel(date) {
 }
 
 export default async function DashboardPage() {
-  // Data source is abstracted.
-  // TODO (Next step): replace this with getDashboardOverview(userId)
-  // where `userId` comes from NextAuth's session.
-  const data = await getDashboardOverview(TEMP_USER_ID);
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  const data = await getDashboardOverview(session.user.id);
   const nowLabel = formatNowLabel(new Date());
 
   return (

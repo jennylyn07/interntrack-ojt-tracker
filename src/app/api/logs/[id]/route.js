@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-
-// ============================================================
-// TEMPORARY: Replace this in Phase 7 with real session userId
-// ============================================================
-const TEMP_USER_ID = "temp-user-1";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 // -------------------------------------------------------
 // Zod Schema — all fields optional for partial updates
@@ -22,6 +19,17 @@ const updateLogSchema = z.object({
 // -------------------------------------------------------
 export async function GET(request, { params }) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
 
     const log = await prisma.logEntry.findUnique({
@@ -38,7 +46,7 @@ export async function GET(request, { params }) {
     });
 
     // Check it exists and belongs to this user
-    if (!log || log.internship.userId !== TEMP_USER_ID) {
+    if (!log || log.internship.userId !== session.user.id) {
       return NextResponse.json(
         { success: false, error: "Log entry not found" },
         { status: 404 }
@@ -65,6 +73,17 @@ export async function GET(request, { params }) {
 // -------------------------------------------------------
 export async function PUT(request, { params }) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
 
@@ -91,7 +110,7 @@ export async function PUT(request, { params }) {
       },
     });
 
-    if (!existing || existing.internship.userId !== TEMP_USER_ID) {
+    if (!existing || existing.internship.userId !== session.user.id) {
       return NextResponse.json(
         { success: false, error: "Log entry not found" },
         { status: 404 }
@@ -124,6 +143,17 @@ export async function PUT(request, { params }) {
 // -------------------------------------------------------
 export async function DELETE(request, { params }) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
 
     // Step 1: Check it exists and belongs to this user
@@ -136,7 +166,7 @@ export async function DELETE(request, { params }) {
       },
     });
 
-    if (!existing || existing.internship.userId !== TEMP_USER_ID) {
+    if (!existing || existing.internship.userId !== session.user.id) {
       return NextResponse.json(
         { success: false, error: "Log entry not found" },
         { status: 404 }

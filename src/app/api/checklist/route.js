@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-
-// ============================================================
-// TEMPORARY: Replace this in Phase 7 with real session userId
-// ============================================================
-const TEMP_USER_ID = "temp-user-1";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 // -------------------------------------------------------
 // Zod Schema
@@ -23,12 +20,23 @@ const createChecklistSchema = z.object({
 // -------------------------------------------------------
 export async function GET(request) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const internshipId = searchParams.get("internshipId");
 
     const where = {
       internship: {
-        userId: TEMP_USER_ID,
+        userId: session.user.id,
       },
     };
 
@@ -69,6 +77,17 @@ export async function GET(request) {
 // -------------------------------------------------------
 export async function POST(request) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
 
     const validation = createChecklistSchema.safeParse(body);
@@ -86,10 +105,10 @@ export async function POST(request) {
     const { internshipId, title } = validation.data;
 
     // Verify internship exists and belongs to this user
-    const internship = await prisma.internship.findUnique({
+    const internship = await prisma.internship.findFirst({
       where: {
         id: internshipId,
-        userId: TEMP_USER_ID,
+        userId: session.user.id,
       },
     });
 

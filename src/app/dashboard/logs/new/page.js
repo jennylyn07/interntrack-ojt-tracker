@@ -1,21 +1,13 @@
-// File: src/app/dashboard/logs/new/page.js
-// Purpose: Form page for adding a new daily log entry.
-// Phase 6: Basic form that calls POST /api/logs
-// Phase 7: Will use real session userId instead of TEMP_USER_ID
-
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-// ============================================================
-// TEMPORARY: Replace this in Phase 7 with real session userId
-// ============================================================
-const TEMP_INTERNSHIP_ID = "cmnk39q1h0000ac9086iu1u88";
 
 export default function NewLogPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [loadingInternship, setLoadingInternship] = useState(true);
+  const [internshipId, setInternshipId] = useState(null);
   const [error, setError] = useState(null);
 
   const [form, setForm] = useState({
@@ -24,12 +16,38 @@ export default function NewLogPage() {
     hours: "",
   });
 
+  useEffect(() => {
+    async function loadActiveInternship() {
+      try {
+        const res = await fetch("/api/internships");
+        const data = await res.json();
+
+        if (data.success && data.data && data.data.length > 0) {
+          const active = data.data.find((item) => item.status === "ACTIVE") || data.data[0];
+          setInternshipId(active.id);
+        } else {
+          setError("No active internship found. Please configure your profile first.");
+        }
+      } catch (err) {
+        setError("Failed to verify internship status.");
+      } finally {
+        setLoadingInternship(false);
+      }
+    }
+    loadActiveInternship();
+  }, []);
+
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (!internshipId) {
+      setError("Cannot save log without an active internship.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -38,7 +56,7 @@ export default function NewLogPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          internshipId: TEMP_INTERNSHIP_ID,
+          internshipId,
           date: new Date(form.date).toISOString(),
           description: form.description,
           hours: parseFloat(form.hours),
@@ -61,6 +79,14 @@ export default function NewLogPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (loadingInternship) {
+    return (
+      <div style={{ maxWidth: 480, margin: "100px auto", textAlign: "center", fontFamily: "sans-serif" }}>
+        <p style={{ color: "#666" }}>Loading internship details...</p>
+      </div>
+    );
   }
 
   return (

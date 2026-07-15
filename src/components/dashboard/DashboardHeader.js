@@ -9,6 +9,7 @@
 //   user interaction for theme changes.
 
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import SignOutButton from "@/components/dashboard/SignOutButton";
 import styles from "./DashboardHeader.module.css";
 
 // Component: DashboardHeader
@@ -22,7 +23,7 @@ export default function DashboardHeader({ student, nowLabel }) {
     <header className={styles.header}>
       <div className={styles.left}>
         <p className={styles.appTitle}>OJT Tracker</p>
-        <h1 className={styles.studentName}>{student?.name ?? "Student"}</h1>
+        <h1 style={{ fontSize: "1.75rem", fontWeight: "700", margin: 0 }}>{student?.name ?? "Student"}</h1>
         <p className={styles.meta}>
           <span className={styles.metaItem}>{nowLabel}</span>
           {student?.company ? (
@@ -32,6 +33,7 @@ export default function DashboardHeader({ student, nowLabel }) {
       </div>
 
       <div className={styles.right}>
+        <SignOutButton />
         <ThemeToggle />
       </div>
     </header>

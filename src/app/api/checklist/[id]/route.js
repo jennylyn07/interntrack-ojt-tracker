@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-
-// ============================================================
-// TEMPORARY: Replace this in Phase 7 with real session userId
-// ============================================================
-const TEMP_USER_ID = "temp-user-1";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 // -------------------------------------------------------
 // Zod Schema — for toggling or updating title
@@ -35,10 +32,21 @@ async function getItemForUser(id) {
 // -------------------------------------------------------
 export async function GET(request, { params }) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const item = await getItemForUser(id);
 
-    if (!item || item.internship.userId !== TEMP_USER_ID) {
+    if (!item || item.internship.userId !== session.user.id) {
       return NextResponse.json(
         { success: false, error: "Checklist item not found" },
         { status: 404 }
@@ -66,6 +74,17 @@ export async function GET(request, { params }) {
 // -------------------------------------------------------
 export async function PUT(request, { params }) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
 
@@ -83,7 +102,7 @@ export async function PUT(request, { params }) {
 
     // Verify ownership
     const existing = await getItemForUser(id);
-    if (!existing || existing.internship.userId !== TEMP_USER_ID) {
+    if (!existing || existing.internship.userId !== session.user.id) {
       return NextResponse.json(
         { success: false, error: "Checklist item not found" },
         { status: 404 }
@@ -115,10 +134,21 @@ export async function PUT(request, { params }) {
 // -------------------------------------------------------
 export async function DELETE(request, { params }) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
 
     const existing = await getItemForUser(id);
-    if (!existing || existing.internship.userId !== TEMP_USER_ID) {
+    if (!existing || existing.internship.userId !== session.user.id) {
       return NextResponse.json(
         { success: false, error: "Checklist item not found" },
         { status: 404 }

@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-
-// ============================================================
-// TEMPORARY: Replace this in Phase 7 with real session userId
-// ============================================================
-const TEMP_USER_ID = "temp-user-1";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 // -------------------------------------------------------
 // Zod Schema — defines what valid input looks like
@@ -26,9 +23,20 @@ const createInternshipSchema = z.object({
 // -------------------------------------------------------
 export async function GET() {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const internships = await prisma.internship.findMany({
       where: {
-        userId: TEMP_USER_ID,
+        userId: session.user.id,
       },
       orderBy: {
         startDate: "desc",
@@ -55,6 +63,17 @@ export async function GET() {
 // -------------------------------------------------------
 export async function POST(request) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     // Step 1: Read the request body
     const body = await request.json();
 
@@ -75,7 +94,7 @@ export async function POST(request) {
     const internship = await prisma.internship.create({
       data: {
         ...validation.data,
-        userId: TEMP_USER_ID,
+        userId: session.user.id,
       },
     });
 

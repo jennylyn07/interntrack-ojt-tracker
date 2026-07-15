@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-
-// ============================================================
-// TEMPORARY: Replace this in Phase 7 with real session userId
-// ============================================================
-const TEMP_USER_ID = "temp-user-1";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 // -------------------------------------------------------
 // Zod Schema — only validate fields that are being updated
@@ -26,12 +23,23 @@ const updateInternshipSchema = z.object({
 // -------------------------------------------------------
 export async function GET(request, { params }) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
 
     const internship = await prisma.internship.findUnique({
       where: {
         id,
-        userId: TEMP_USER_ID, // security: ensure it belongs to this user
+        userId: session.user.id, // security: ensure it belongs to this user
       },
       include: {
         logEntries: {
@@ -68,6 +76,17 @@ export async function GET(request, { params }) {
 // -------------------------------------------------------
 export async function PUT(request, { params }) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
 
@@ -86,7 +105,7 @@ export async function PUT(request, { params }) {
 
     // Step 2: Check it exists and belongs to this user
     const existing = await prisma.internship.findUnique({
-      where: { id, userId: TEMP_USER_ID },
+      where: { id, userId: session.user.id },
     });
 
     if (!existing) {
@@ -122,11 +141,22 @@ export async function PUT(request, { params }) {
 // -------------------------------------------------------
 export async function DELETE(request, { params }) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
 
     // Step 1: Check it exists and belongs to this user
     const existing = await prisma.internship.findUnique({
-      where: { id, userId: TEMP_USER_ID },
+      where: { id, userId: session.user.id },
     });
 
     if (!existing) {
