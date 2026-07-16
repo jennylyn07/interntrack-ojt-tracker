@@ -1,6 +1,6 @@
 # Project Architecture & Tech Stack: InternTrack OJT Tracker
 
-> **Revision notes:** This is an updated version of the original architecture doc. What changed: swapped Auth.js/NextAuth.js for Better Auth (reasoning below), added production-grade database connection handling — the original singleton pattern only solved the *development* problem, not the production one — added a transparent "current status" section so nothing here reads as a claim about code that doesn't exist yet, and added four sections the original didn't cover: environment variables, testing strategy, deployment, and error/loading states.
+> **Revision notes:** Updated 2026-07-16 — Phase 7 (Better Auth) is now complete. Authentication, session-based IDOR protection, and password hashing are all live. Section 0 status table updated accordingly; Phase 7 references throughout updated from "planned" to "implemented." Migration tracking is now fully captured in `prisma/migrations/` (4 migrations, schema up to date).
 
 Welcome! If you are preparing for a career in software engineering, this project is built using the same **architectural patterns, frameworks, and tools** that modern tech companies use.
 
@@ -32,15 +32,16 @@ Before anything else — here's what's actually running today versus what's desi
 | Dashboard UI, checklist tracking, progress cards | ✅ Built |
 | Optimistic UI updates | ✅ Built |
 | Input validation with Zod | ✅ Built |
-| Database schema & Prisma migrations | ✅ Built |
+| Database schema & Prisma migrations | ✅ Built (4 migrations tracked) |
 | Development-safe database connections (singleton) | ✅ Built |
-| Authentication (Better Auth) | 🔜 Planned — Phase 7 |
-| Session-based IDOR protection | 🔜 Planned — depends on Phase 7 |
-| Password hashing | 🔜 Planned — depends on Phase 7 |
+| Authentication (Better Auth) | ✅ Built — Phase 7 complete |
+| Session-based IDOR protection | ✅ Built & verified (14/14 checks pass) |
+| Password hashing | ✅ Built — Better Auth handles hashing via scrypt |
+| Route protection (proxy.js) | ✅ Built — cookie-presence check in Next.js proxy |
 | Production-safe connection pooling | 🔜 Planned — see Section 4B |
 | Deployment | 🔜 Planned — see Section 8 |
 
-Anywhere below that describes security or auth behavior is describing the **target design**, not a claim about what's live right now. Each one is flagged again where it matters.
+All security and auth behavior described below reflects the **current live implementation**, not just a target design.
 
 ---
 
@@ -95,7 +96,7 @@ ojt-tracker/
 │   │
 │   └── lib/                      # Shared utility files
 │       ├── prisma.js             # Database connection manager (Singleton — see Section 4B)
-│       ├── auth.js               # Better Auth configuration (Phase 7 — not yet present)
+│       ├── auth.js               # Better Auth configuration (live — Phase 7 complete)
 │       └── dashboard-data.js     # Server-side data-fetching helpers
 ```
 
@@ -117,7 +118,7 @@ sequenceDiagram
     Note over UI: Optimistic Update:<br/>UI toggles checkbox immediately<br/>before waiting for network response.
     UI->>API: Fetch PUT /api/checklist/item-id { completed: true }
     API->>API: Validate input format with Zod schema
-    API->>API: Verify session ownership (IDOR check — Phase 7, not yet live)
+    API->>API: Verify session ownership via auth.api.getSession() (IDOR check — live ✅)
     API->>DB: prisma.checklistItem.update()
     DB-->>API: Returns updated database record
     API-->>UI: Response: 200 OK (or error)
@@ -197,7 +198,7 @@ In production, these live in the hosting platform's dashboard (for Vercel: Proje
 
 ## 6. Security Practices Applied
 
-> **Status check:** Everything below describes the *target* security model once Phase 7 lands. As of this writing, the codebase uses hardcoded placeholder IDs (`temp-user-1`) instead of real sessions, so none of this is enforced in the running app yet. This is the spec being built toward, not a claim about the current state — see Section 0.
+> **Status check:** Everything below describes the **live, implemented** security model as of Phase 7 (2026-07-16). The hardcoded `temp-user-1` placeholder has been fully replaced with real Better Auth sessions. IDOR protection was verified by a 14-check test matrix — all checks passed.
 
 Actual industries evaluate backend code on how it handles security. This project is designed to enforce:
 
@@ -249,13 +250,18 @@ Both are cheap to add (see Section 2 for where they'd live under `dashboard/`), 
 
 ---
 
-## 10. Roadmap: What Phase 7 Actually Unlocks
+## 10. Phase 7 — Complete
 
-Phase 7 isn't cleanup tacked onto the end of this project — it's the foundation everything above has already been built against. The placeholder `temp-user-1` IDs, the shape of the API routes, the IDOR-protection design in Section 6 — all of it already assumes what real authentication will look like. Phase 7 is where that assumption becomes true.
+Phase 7 is done. Here's what was actually implemented:
 
-Concretely, it involves:
-1. Setting up Better Auth with the Prisma adapter (Section 1).
-2. Building the sign-up and login forms.
-3. Replacing every `temp-user-1` reference with the real, session-derived user ID (Section 6).
-4. Adding password hashing (Section 6).
-5. Wiring up the deployment pipeline end-to-end (Section 8), so what ships afterward is the authenticated version, not the placeholder one.
+1. **Better Auth configured** with the Prisma adapter in `src/lib/auth.js` — `Session`, `Account`, and `Verification` models live in `prisma/schema.prisma`.
+2. **Sign-up and login forms** built at `/register` and `/login`.
+3. **Every `temp-user-1` reference replaced** with the real, session-derived user ID via `auth.api.getSession({ headers: await headers() })` in each API route handler.
+4. **Password hashing** — handled automatically by Better Auth (scrypt).
+5. **Route protection** — `src/proxy.js` (Next.js 16's replacement for `middleware.js`) performs a lightweight cookie-presence check; individual route handlers do the authoritative `getSession()` call.
+6. **IDOR verification** — 14-check test matrix run on 2026-07-16:
+   - Checks 1–9, 13–14 (cross-user access): all returned 404 ✅
+   - Checks 10–12 (unauthenticated access): all returned 401 ✅
+7. **Migration tracking fixed** — Better Auth schema changes (applied via `db push`) were captured as `prisma/migrations/20260716000000_add_better_auth/migration.sql` and registered with `migrate resolve --applied`. `prisma migrate status` now shows 4 migrations, schema up to date.
+
+The next milestone is deployment (Section 8) — wiring up a production database with connection pooling and setting environment variables in Vercel.
