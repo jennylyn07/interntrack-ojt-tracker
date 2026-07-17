@@ -3,13 +3,12 @@
 //
 // Architecture note:
 // - This is a Server Component by default.
-// - In the future, this is a good place to enforce authentication:
-//   - Use NextAuth `getServerSession()` here.
-//   - Redirect unauthenticated users to sign-in.
+// - Authentication is enforced in dashboard/page.js (via auth.api.getSession)
+//   and at the edge in src/proxy.js (cookie-presence check).
 //
 // Why have a dashboard layout?
 // - It scopes dashboard-specific page structure (padding, max-width, grid)
-//   without affecting other routes like / (home) or /auth.
+//   without affecting other routes like / (home) or /login.
 
 import styles from "./layout.module.css";
 

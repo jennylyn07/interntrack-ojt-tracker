@@ -73,31 +73,37 @@ Here is how the project files are organized and what each directory is responsib
 
 ```text
 ojt-tracker/
-├── .env.example                 # Template listing required env vars, no real secrets (see Section 5)
-├── prisma/                      # Database Schema & Migration files
-│   ├── migrations/              # SQL history tracking every database change
-│   └── schema.prisma            # The single source of truth for the database design
+├── prisma/                      # Database schema & migration files
+│   ├── migrations/              # SQL history — every schema change tracked here
+│   └── schema.prisma            # Single source of truth for the database design
 │
 ├── src/
 │   ├── app/                     # Next.js App Router (pages and APIs)
-│   │   ├── api/                 # Backend API endpoints (e.g. /api/logs, /api/checklist)
-│   │   ├── dashboard/           # The student dashboard UI pages
-│   │   │   ├── loading.js       # Route-level loading UI (see Section 9)
-│   │   │   └── error.js         # Route-level error boundary (see Section 9)
-│   │   ├── globals.css          # Global CSS stylesheet (contains design system tokens)
+│   │   ├── api/
+│   │   │   ├── auth/[...all]/   # Better Auth catch-all handler
+│   │   │   ├── checklist/       # Checklist CRUD endpoints (+ /[id])
+│   │   │   ├── internships/     # Internship CRUD endpoints (+ /[id])
+│   │   │   └── logs/            # Log entry CRUD endpoints (+ /[id])
+│   │   ├── dashboard/           # Student dashboard UI
+│   │   │   ├── logs/new/        # Add daily log entry form
+│   │   │   └── profile/         # Internship profile edit form
+│   │   ├── login/               # Sign-in page
+│   │   ├── register/            # Sign-up page
+│   │   ├── globals.css          # Global CSS (design system tokens)
 │   │   ├── layout.js            # Root layout wrapping the HTML shell
-│   │   └── page.js              # Main home page (redirects to dashboard)
+│   │   └── page.js              # Root route: redirects to /dashboard if authenticated, /login if not
 │   │
-│   ├── components/              # Reusable UI components
-│   │   ├── dashboard/           # Dashboard-specific components (e.g., ProgressCard, ChecklistCard)
-│   │   └── ui/                  # Core generic UI components (e.g., ThemeToggle)
+│   ├── components/
+│   │   ├── dashboard/           # Dashboard components (ProgressCard, ChecklistCard, SignOutButton, …)
+│   │   └── ui/                  # Generic UI components (ThemeToggle)
 │   │
-│   ├── generated/                # Automatically generated database client files by Prisma
+│   ├── generated/               # Prisma client — gitignored, rebuilt automatically on install
 │   │
-│   └── lib/                      # Shared utility files
-│       ├── prisma.js             # Database connection manager (Singleton — see Section 4B)
-│       ├── auth.js               # Better Auth configuration (live — Phase 7 complete)
-│       └── dashboard-data.js     # Server-side data-fetching helpers
+│   └── lib/
+│       ├── prisma.js            # Database connection singleton (see Section 4B)
+│       ├── auth.js              # Better Auth server-side configuration
+│       ├── auth-client.js       # Better Auth client-side hooks for "use client" components
+│       └── dashboard-data.js    # Server-side data-fetching helpers
 ```
 
 ---
@@ -117,8 +123,9 @@ sequenceDiagram
     Student->>UI: Clicks checkbox on Checklist item
     Note over UI: Optimistic Update:<br/>UI toggles checkbox immediately<br/>before waiting for network response.
     UI->>API: Fetch PUT /api/checklist/item-id { completed: true }
-    API->>API: Validate input format with Zod schema
-    API->>API: Verify session ownership via auth.api.getSession() (IDOR check — live ✅)
+    API->>API: Verify session via auth.api.getSession() — 401 if no valid session
+    API->>API: Parse and validate body with Zod — 400 if invalid
+    API->>API: Look up item, verify userId matches session — 404 if not owner
     API->>DB: prisma.checklistItem.update()
     DB-->>API: Returns updated database record
     API-->>UI: Response: 200 OK (or error)
@@ -127,7 +134,7 @@ sequenceDiagram
 
 ### Architectural Details:
 1. **Optimistic Updates (Browser)**: In [ChecklistCard.js](file:///c:/Users/Welcome/Documents/GitHub/InternTrack-OJT-Tracker/ojt-tracker/src/components/dashboard/ChecklistCard.js#L25-L66), when a user checks an item, the checkbox toggles *instantly*. If the API fails later, it rolls back. This mimics premium apps (like Facebook likes or Twitter retweets) where the interface feels snappy.
-2. **Input Validation (Backend)**: Before doing database operations, APIs use a library called **Zod** (e.g., in [logs/route.js](file:///c:/Users/Welcome/Documents/GitHub/InternTrack-OJT-Tracker/ojt-tracker/src/app/api/logs/route.js#L13-L18)) to validate that dates are real dates, hours are positive numbers, etc. This blocks corrupted inputs — and unlike the IDOR check above, this piece is fully live today, not just designed.
+2. **Input Validation (Backend)**: Before doing database operations, APIs use a library called **Zod** (e.g., in [logs/route.js](file:///c:/Users/Welcome/Documents/GitHub/InternTrack-OJT-Tracker/ojt-tracker/src/app/api/logs/route.js#L10-L15)) to validate that dates are real dates, hours are positive numbers, etc. This blocks corrupted inputs — and this runs on every request, after the session check.
 3. **Database Client (ORM)**: Prisma generates a type-safe client in the `src/generated` directory. This acts as a bridge so we interact with database tables as standard JavaScript objects.
 
 ---
@@ -181,16 +188,17 @@ One command distinction worth internalizing before Section 8 (Deployment): `pris
 None of the secrets this app needs — database credentials, the auth secret key, OAuth client IDs — should ever be committed to the repository. The convention:
 
 - **`.env`** — holds real values locally. Gitignored, never pushed.
-- **`.env.example`** — committed to the repo, lists every variable name the app needs with placeholder or blank values, so anyone (a future you, or an interviewer cloning the repo) knows what to configure without ever seeing a real secret.
+- **`.env.example`** — should be committed to the repo, listing every variable name with placeholder values so anyone cloning the repo knows what to configure. This file still needs to be created (it's in the deployment checklist).
 
-For this project, that list currently includes (or will include, once Phase 7 lands):
+For this project, the required variables are:
 
 | Variable | Purpose |
 | :--- | :--- |
-| `DATABASE_URL` | Pooled connection string the running app uses (Section 4B) |
-| `DIRECT_URL` | Direct connection string used only for migrations (Section 4B) |
-| Better Auth secret key | Signs and encrypts session data — exact variable name depends on the version installed; check current Better Auth docs |
-| OAuth client ID / secret (optional) | Only needed if adding Google/GitHub login |
+| `DATABASE_URL` | Connection string the running app uses; must be a **pooled** URL when deploying to serverless (Section 4B) |
+| `BETTER_AUTH_SECRET` | Signs and encrypts session tokens — generate with `openssl rand -base64 32` |
+| `BETTER_AUTH_URL` | Full public URL of the deployed app (e.g. `https://your-app.vercel.app`) — used by Better Auth to construct callbacks and redirects |
+| `DIRECT_URL` | Direct (non-pooled) connection string — only needed when running `prisma migrate deploy` against a managed pooler in CI/CD |
+| OAuth client ID / secret | Optional — only needed if adding Google/GitHub login in the future |
 
 In production, these live in the hosting platform's dashboard (for Vercel: Project Settings → Environment Variables) — not in a file at all.
 
@@ -206,7 +214,7 @@ Actual industries evaluate backend code on how it handles security. This project
    A common security vulnerability is *Insecure Direct Object Reference*. For example, a user logs in and tries to fetch their logs, but they manually change the query from `/api/logs?userId=1` to `/api/logs?userId=2` to view someone else's logs.
    *Resolution:* We do not rely on user IDs sent from the client-side browser. Instead, our backend APIs read the user ID directly from the secure, encrypted **server session** using Better Auth.
 2. **Password Security**:
-   In Phase 7, we will stop using plain text passwords. Better Auth's default hashing algorithm is scrypt; bcrypt is also a fine, industry-normal choice if standardizing on that instead is preferred. Either way, if the database is ever leaked, passwords remain unreadable.
+   Better Auth's default hashing algorithm is scrypt. Passwords are hashed before storage — if the database is ever leaked, passwords remain unreadable.
 
 ---
 
