@@ -1,6 +1,6 @@
 # OJT Tracker – Student Dashboard
 
-OJT Tracker is a **full-stack web application** designed for students to efficiently manage and track their On-the-Job Training (OJT) progress. 
+OJT Tracker is a **full-stack web application** designed for students to efficiently manage and track their On-the-Job Training (OJT) progress.
 
 With this system, students can:
 
@@ -11,51 +11,67 @@ With this system, students can:
 
 This project is built with:
 
-- **Next.js (App Router)** – modern React framework for server-side rendering and routing
-- **MySQL** – relational database for storing users and logs
-- **Prisma ORM** – for database management and queries
-- **NextAuth.js** – session-based authentication
+- **Next.js 16 (App Router)** – modern React framework for server-side rendering and routing
+- **PostgreSQL** – relational database for storing users and logs
+- **Prisma ORM** – for database management, migrations, and queries
+- **Better Auth** – session-based authentication with the Prisma adapter
 - **Plain CSS** – custom styling for a clean, responsive interface
 
-OJT Tracker is **portfolio-ready** and demonstrates full-stack development skills, authentication, RESTful APIs, database integration, and real-world problem solving.
+OJT Tracker demonstrates full-stack development skills, authentication with proper session-based access control, RESTful API design, database schema management, and real-world security practices (see [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the full technical writeup, including the reasoning behind each decision).
 
-
-
-
-
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18 or later
+- A running PostgreSQL database (local install, or a free hosted instance from [Neon](https://neon.tech) or [Supabase](https://supabase.com))
+
+### 1. Clone and install dependencies
+
+```bash
+git clone https://github.com/<your-username>/InternTrack-OJT-Tracker.git
+cd InternTrack-OJT-Tracker/ojt-tracker
+npm install
+```
+
+### 2. Configure environment variables
+
+Copy `.env.example` to `.env` and fill in real values:
+
+```bash
+cp .env.example .env
+```
+
+You'll need at minimum:
+- `DATABASE_URL` — your PostgreSQL connection string
+- `BETTER_AUTH_SECRET` — any long random string (used to sign session data)
+- `BETTER_AUTH_URL` — `http://localhost:3000` for local development
+
+### 3. Set up the database
+
+```bash
+npx prisma migrate deploy
+npx prisma generate
+```
+
+This applies all tracked migrations and generates the Prisma Client.
+
+### 4. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser. You'll be redirected to `/register` to create an account, or `/login` if you already have one.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure & Architecture
 
-## Learn More
+For a full breakdown of the tech stack, data flow, security model, and design decisions behind this project, see [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This app is designed to deploy on [Vercel](https://vercel.com), the platform built by the Next.js team. See Section 8 of [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the specific steps this project needs (environment variables, connection pooling, and running migrations against production).
