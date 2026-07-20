@@ -29,9 +29,13 @@ Before anything else — here's what's actually running today versus what's desi
 
 | Feature | Status |
 | :--- | :--- |
-| Dashboard UI, checklist tracking, progress cards | ✅ Built |
+| Dashboard UI, progress cards, empty-state guidance | ✅ Built |
+| Checklist read / toggle UI | ✅ Built |
+| Checklist create / delete UI | 🔜 Planned (Stage 2) |
 | Optimistic UI updates | ✅ Built |
 | Input validation with Zod | ✅ Built |
+| Dashboard loading skeleton (`loading.js`) | ✅ Built |
+| Dashboard error boundary (`error.js`) | ✅ Built |
 | Database schema & Prisma migrations | ✅ Built (4 migrations tracked) |
 | Development-safe database connections (singleton) | ✅ Built |
 | Authentication (Better Auth) | ✅ Built — Phase 7 complete |

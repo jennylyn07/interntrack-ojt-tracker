@@ -18,6 +18,7 @@ import QuickActions from "@/components/dashboard/QuickActions";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import styles from "./page.module.css";
 
@@ -48,9 +49,50 @@ export default async function DashboardPage() {
   const data = await getDashboardOverview(session.user.id);
   const nowLabel = formatNowLabel(new Date());
 
+  // A user with no internship configured sees a setup prompt instead of
+  // a confusing zeroed-out dashboard.
+  const hasInternship = data.progress.requiredHours > 0;
+
   return (
     <div className={styles.page}>
       <DashboardHeader student={data.student} nowLabel={nowLabel} />
+
+      {!hasInternship && (
+        <div style={{
+          background: "var(--surface)",
+          border: "1px solid var(--muted)",
+          borderRadius: "var(--radius-lg)",
+          padding: "var(--space-4)",
+          boxShadow: "var(--shadow-soft-outer)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-2)",
+          alignItems: "flex-start",
+        }}>
+          <p style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+            👋 Welcome! Let&apos;s get your OJT set up.
+          </p>
+          <p style={{ color: "var(--accent)", fontSize: "0.95rem", lineHeight: 1.5 }}>
+            You haven&apos;t configured your internship details yet. Add your company,
+            supervisor, and required hours so the dashboard can track your progress.
+          </p>
+          <Link
+            href="/dashboard/profile"
+            style={{
+              marginTop: "var(--space-1)",
+              padding: "10px 22px",
+              borderRadius: 999,
+              background: "var(--accent)",
+              color: "var(--surface)",
+              fontWeight: 600,
+              fontSize: "0.9rem",
+              display: "inline-block",
+            }}
+          >
+            Set up internship profile →
+          </Link>
+        </div>
+      )}
 
       {/* Grid layout:
           - Mobile: cards stack.

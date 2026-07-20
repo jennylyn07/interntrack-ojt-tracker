@@ -80,7 +80,7 @@ export default function ChecklistCard({ items }) {
 
       {localItems.length === 0 ? (
         <p className={styles.empty}>
-          No checklist items yet. Add items via the API.
+          No checklist items yet.
         </p>
       ) : (
         <ul className={styles.list}>

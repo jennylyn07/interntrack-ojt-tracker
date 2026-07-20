@@ -29,7 +29,7 @@ export default function QuickActions() {
           className={styles.action}
           aria-label="Download report"
           disabled
-          title="Coming in Phase 8"
+          title="Report download coming soon"
         >
           Download Report
         </button>

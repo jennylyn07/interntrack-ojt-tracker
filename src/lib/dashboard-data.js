@@ -42,7 +42,7 @@ export async function getDashboardOverview(userId) {
   if (!internship) {
     return {
       student: {
-        name: user?.email ?? "Student",
+        name: user?.name ?? user?.email ?? "Student",
         program: "",
         company: null,
       },
@@ -116,7 +116,7 @@ export async function getDashboardOverview(userId) {
   // Shape is identical to mock version — no component changes needed
   return {
     student: {
-      name: user?.email ?? "Student",
+      name: user?.name ?? user?.email ?? "Student",
       program: "",
       company: internship.company,
     },

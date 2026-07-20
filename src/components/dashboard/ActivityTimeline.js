@@ -3,8 +3,7 @@
 //
 // Architecture note:
 // - Server Component: timeline is read-only display.
-// - Later, replace mock `timeline` with Prisma query:
-//   `prisma.ojtLog.findMany({ where: { userId }, orderBy: { date: 'desc' }, take: 10 })`
+// - Populated server-side via dashboard-data.js from the last 3 LogEntry records.
 
 import styles from "./ActivityTimeline.module.css";
 
