@@ -17,10 +17,12 @@ function getTodayRange() {
 }
 
 // -------------------------------------------------------
-// getDashboardOverview(userId)
+// getDashboardOverview(userId, preferredInternshipId?)
 // Returns all data needed by the dashboard page.
+// preferredInternshipId: when a user has multiple ACTIVE internships and
+// has selected one via the switcher, this pins the dashboard to that one.
 // -------------------------------------------------------
-export async function getDashboardOverview(userId) {
+export async function getDashboardOverview(userId, preferredInternshipId = null) {
   if (!userId) {
     throw new Error("getDashboardOverview: userId is required");
   }
@@ -29,18 +31,27 @@ export async function getDashboardOverview(userId) {
     where: { id: userId },
   });
 
-  // Step 2: Get the active internship for this user
-  const internship = await prisma.internship.findFirst({
-    where: {
-      userId,
-      status: "ACTIVE",
-    },
-    orderBy: { startDate: "desc" },
-  });
+  // Step 2: Get the active internship for this user.
+  // If the user has selected a specific internship via the switcher, honour that
+  // choice — but validate it still belongs to them and is ACTIVE.
+  // Fall back to most-recently-started ACTIVE internship.
+  let internship = null;
+  if (preferredInternshipId) {
+    internship = await prisma.internship.findFirst({
+      where: { id: preferredInternshipId, userId, status: "ACTIVE" },
+    });
+  }
+  if (!internship) {
+    internship = await prisma.internship.findFirst({
+      where: { userId, status: "ACTIVE" },
+      orderBy: { startDate: "desc" },
+    });
+  }
 
   // Step 3: If no internship found, return a safe empty state
   if (!internship) {
     return {
+      internshipId: null,
       student: {
         name: user?.name ?? user?.email ?? "Student",
         program: "",
@@ -113,8 +124,8 @@ export async function getDashboardOverview(userId) {
   }));
 
   // Step 8: Return the full dashboard data
-  // Shape is identical to mock version — no component changes needed
   return {
+    internshipId: internship.id,
     student: {
       name: user?.name ?? user?.email ?? "Student",
       program: "",
@@ -134,4 +145,49 @@ export async function getDashboardOverview(userId) {
     })),
     timeline,
   };
+}
+
+// -------------------------------------------------------
+// getUserInternships(userId)
+// Returns ALL internships for a user with computed hours.
+// Used by the /dashboard/internships list page.
+// -------------------------------------------------------
+export async function getUserInternships(userId) {
+  if (!userId) {
+    throw new Error("getUserInternships: userId is required");
+  }
+
+  const internships = await prisma.internship.findMany({
+    where: { userId },
+    orderBy: { startDate: "desc" },
+    include: {
+      logEntries: { select: { hours: true } },
+    },
+  });
+
+  return internships.map((internship) => ({
+    id: internship.id,
+    company: internship.company,
+    supervisor: internship.supervisor,
+    requiredHours: internship.requiredHours,
+    startDate: internship.startDate,
+    endDate: internship.endDate,
+    status: internship.status,
+    completedHours: internship.logEntries.reduce((sum, e) => sum + e.hours, 0),
+  }));
+}
+
+// -------------------------------------------------------
+// getActiveInternships(userId)
+// Returns only id + company for every ACTIVE internship.
+// Used by the InternshipSwitcher to populate the dropdown
+// without the overhead of fetching log data for each.
+// -------------------------------------------------------
+export async function getActiveInternships(userId) {
+  if (!userId) return [];
+  return await prisma.internship.findMany({
+    where: { userId, status: "ACTIVE" },
+    orderBy: { startDate: "desc" },
+    select: { id: true, company: true },
+  });
 }

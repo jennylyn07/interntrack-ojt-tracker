@@ -93,8 +93,110 @@
 .label {
   font-size: 0.95rem;
   color: rgba(0, 13, 12, 0.9);
+  flex: 1;
 }
 
 :root[data-theme="dark"] .label {
   color: rgba(242, 242, 240, 0.9);
+}
+
+.empty {
+  margin-top: var(--space-2);
+  font-size: 0.9rem;
+  color: rgba(0, 13, 12, 0.5);
+  text-align: center;
+  padding: var(--space-2) 0;
+}
+
+:root[data-theme="dark"] .empty {
+  color: rgba(242, 242, 240, 0.45);
+}
+
+/* List item is now a flex row: [toggle button flex-1] [delete button] */
+.listItem {
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.deleteButton {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(0, 13, 12, 0.35);
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.deleteButton:hover {
+  background: rgba(255, 59, 48, 0.1);
+  color: #ff3b30;
+}
+
+:root[data-theme="dark"] .deleteButton {
+  color: rgba(242, 242, 240, 0.35);
+}
+
+/* Add form sits below the list */
+.addForm {
+  margin-top: var(--space-2);
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.addInput {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--muted);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  box-shadow: var(--shadow-soft-inner);
+  transition: border-color var(--transition-fast);
+}
+
+.addInput:focus {
+  border-color: var(--accent);
+}
+
+.addInput::placeholder {
+  color: rgba(0, 13, 12, 0.35);
+}
+
+:root[data-theme="dark"] .addInput::placeholder {
+  color: rgba(242, 242, 240, 0.35);
+}
+
+.addButton {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--surface);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity var(--transition-fast);
+}
+
+.addButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

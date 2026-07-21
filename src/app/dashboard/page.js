@@ -6,15 +6,23 @@
 // - Server rendering is fast for first load and is ideal once Prisma + NextAuth
 //   are integrated (we will fetch data securely on the server).
 // - Client components are used only for interactive widgets (theme toggle,
-//   checklist).
+//   checklist, internship switcher).
+//
+// Multi-internship switching:
+// - If the user has exactly one ACTIVE internship (the common case), the
+//   switcher is never rendered and the URL param is ignored.
+// - If the user has multiple ACTIVE internships simultaneously, a dropdown
+//   is shown. Selecting a different one pushes ?internshipId=xxx to the URL
+//   and this server component re-renders with the correct internship's data.
 
-import { getDashboardOverview } from "@/lib/dashboard-data";
+import { getDashboardOverview, getActiveInternships } from "@/lib/dashboard-data";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ProgressCard from "@/components/dashboard/ProgressCard";
 import DailyLogCard from "@/components/dashboard/DailyLogCard";
 import ChecklistCard from "@/components/dashboard/ChecklistCard";
 import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
 import QuickActions from "@/components/dashboard/QuickActions";
+import InternshipSwitcher from "@/components/dashboard/InternshipSwitcher";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -37,7 +45,7 @@ function formatNowLabel(date) {
   });
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -46,17 +54,41 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const data = await getDashboardOverview(session.user.id);
+  // Next.js 15+ searchParams is a Promise in server components
+  const resolvedParams = await searchParams;
+  const preferredInternshipId = resolvedParams?.internshipId ?? null;
+
+  // Fetch dashboard data and active-internship list in parallel.
+  // getDashboardOverview honours preferredInternshipId if supplied and valid,
+  // otherwise falls back to the most-recently-started ACTIVE internship.
+  const [data, activeInternships] = await Promise.all([
+    getDashboardOverview(session.user.id, preferredInternshipId),
+    getActiveInternships(session.user.id),
+  ]);
+
   const nowLabel = formatNowLabel(new Date());
 
   // A user with no internship configured sees a setup prompt instead of
   // a confusing zeroed-out dashboard.
   const hasInternship = data.progress.requiredHours > 0;
 
+  // Only show the switcher when the user genuinely has more than one active
+  // internship at the same time — the rare concurrent-placement case.
+  const showSwitcher = activeInternships.length > 1;
+
   return (
     <div className={styles.page}>
       <DashboardHeader student={data.student} nowLabel={nowLabel} />
 
+      {/* Multi-ACTIVE switcher — only rendered when user has > 1 active internship */}
+      {showSwitcher && (
+        <InternshipSwitcher
+          internships={activeInternships}
+          currentId={data.internshipId}
+        />
+      )}
+
+      {/* New-user empty state — shown when no internship exists yet */}
       {!hasInternship && (
         <div style={{
           background: "var(--surface)",
@@ -77,7 +109,7 @@ export default async function DashboardPage() {
             supervisor, and required hours so the dashboard can track your progress.
           </p>
           <Link
-            href="/dashboard/profile"
+            href="/dashboard/internships/new"
             style={{
               marginTop: "var(--space-1)",
               padding: "10px 22px",
@@ -105,7 +137,7 @@ export default async function DashboardPage() {
 
         <div className={styles.rightColumn}>
           <DailyLogCard todayLog={data.todayLog} />
-          <ChecklistCard items={data.checklistItems} />
+          <ChecklistCard items={data.checklistItems} internshipId={data.internshipId} />
         </div>
 
         <div className={styles.timeline}>

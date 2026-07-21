@@ -31,7 +31,8 @@ Before anything else — here's what's actually running today versus what's desi
 | :--- | :--- |
 | Dashboard UI, progress cards, empty-state guidance | ✅ Built |
 | Checklist read / toggle UI | ✅ Built |
-| Checklist create / delete UI | 🔜 Planned (Stage 2) |
+| Checklist create / delete UI | ✅ Built — Stage 2 complete |
+| Internship history — list, add, edit per-ID | ✅ Built — Stage 2 complete |
 | Optimistic UI updates | ✅ Built |
 | Input validation with Zod | ✅ Built |
 | Dashboard loading skeleton (`loading.js`) | ✅ Built |
@@ -89,8 +90,14 @@ ojt-tracker/
 │   │   │   ├── internships/     # Internship CRUD endpoints (+ /[id])
 │   │   │   └── logs/            # Log entry CRUD endpoints (+ /[id])
 │   │   ├── dashboard/           # Student dashboard UI
+│   │   │   ├── internships/     # Internship management
+│   │   │   │   ├── page.js      # List all internships (active + history)
+│   │   │   │   ├── new/         # Create new internship form
+│   │   │   │   └── [id]/edit/   # Edit a specific internship by ID
 │   │   │   ├── logs/new/        # Add daily log entry form
-│   │   │   └── profile/         # Internship profile edit form
+│   │   │   ├── profile/         # Redirects to /dashboard/internships
+│   │   │   ├── error.js         # Error boundary for dashboard route
+│   │   │   └── loading.js       # Loading skeleton for dashboard route
 │   │   ├── login/               # Sign-in page
 │   │   ├── register/            # Sign-up page
 │   │   ├── globals.css          # Global CSS (design system tokens)

@@ -18,9 +18,9 @@ export default function QuickActions() {
           Add Log
         </Link>
 
-        {/* Phase 6: Wired to real route */}
-        <Link href="/dashboard/profile" className={styles.action}>
-          Edit Profile
+        {/* Stage 2: Updated from "Edit Profile" to link to internship list */}
+        <Link href="/dashboard/internships" className={styles.action}>
+          My Internships
         </Link>
 
         {/* Phase 8: Will generate PDF/CSV report */}

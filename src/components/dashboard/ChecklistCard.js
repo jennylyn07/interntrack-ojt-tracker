@@ -4,38 +4,39 @@
 // Purpose: An interactive checklist representing internship requirements.
 //
 // Why client component?
-// - Toggling checklist items is local UI state (interaction).
-// - Persists changes via /api/checklist/[id] PUT route.
+// - Toggling, adding, and deleting checklist items all involve local UI state.
+// - All three operations persist changes via API calls with optimistic updates.
 //
-// Pattern used: Optimistic Updates
-// - UI updates immediately on click for a fast feel
-// - API call happens in background
-// - If API fails, UI reverts back to previous state
-
-import { useMemo, useState } from "react";
-import styles from "./ChecklistCard.module.css";
-
-// Component: ChecklistCard
+// Patterns used:
+// - Optimistic Updates (toggle, add, delete)
+// - Rollback on failure for all three operations
+//
 // Props:
 // - items: Array<{ id: string, label: string, completed: boolean }>
-export default function ChecklistCard({ items }) {
+// - internshipId: string | null — null means no active internship; hides the add form
+
+import { useMemo, useState, useRef } from "react";
+import styles from "./ChecklistCard.module.css";
+
+export default function ChecklistCard({ items, internshipId }) {
   const initial = useMemo(() => items ?? [], [items]);
   const [localItems, setLocalItems] = useState(initial);
+  const [addText, setAddText] = useState("");
+  const [adding, setAdding] = useState(false);
+  const inputRef = useRef(null);
 
+  // -------------------------------------------------------
+  // Toggle (existing behaviour — unchanged)
+  // -------------------------------------------------------
   async function toggle(id) {
-    // Find the current item and its completed value
     const item = localItems.find((it) => it.id === id);
     const newCompleted = !item.completed;
 
-    // Step 1: Optimistic update — update UI immediately
-    // without waiting for the API response
+    // Optimistic update
     setLocalItems((prev) =>
-      prev.map((it) =>
-        it.id === id ? { ...it, completed: newCompleted } : it
-      )
+      prev.map((it) => (it.id === id ? { ...it, completed: newCompleted } : it))
     );
 
-    // Step 2: Persist to backend
     try {
       const res = await fetch(`/api/checklist/${id}`, {
         method: "PUT",
@@ -44,23 +45,97 @@ export default function ChecklistCard({ items }) {
       });
 
       if (!res.ok) {
-        // Step 3a: API failed — revert UI back to original state
+        // Revert on failure
         setLocalItems((prev) =>
-          prev.map((it) =>
-            it.id === id ? { ...it, completed: item.completed } : it
-          )
+          prev.map((it) => (it.id === id ? { ...it, completed: item.completed } : it))
         );
         console.error("Failed to update checklist item");
       }
-      // Step 3b: API succeeded — UI is already correct, nothing to do
-
     } catch (error) {
-      // Step 3a: Network error — revert UI back to original state
       setLocalItems((prev) =>
-        prev.map((it) =>
-          it.id === id ? { ...it, completed: item.completed } : it
-        )
+        prev.map((it) => (it.id === id ? { ...it, completed: item.completed } : it))
       );
+      console.error("Network error:", error);
+    }
+  }
+
+  // -------------------------------------------------------
+  // Add (Stage 2)
+  // -------------------------------------------------------
+  async function handleAdd(e) {
+    e.preventDefault();
+    const title = addText.trim();
+    if (!title || !internshipId || adding) return;
+
+    setAdding(true);
+
+    // Optimistic: insert with a temporary ID
+    const tempId = `temp-${Date.now()}`;
+    const optimisticItem = { id: tempId, label: title, completed: false };
+    setLocalItems((prev) => [...prev, optimisticItem]);
+    setAddText("");
+
+    try {
+      const res = await fetch("/api/checklist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ internshipId, title }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        // Rollback optimistic item
+        setLocalItems((prev) => prev.filter((it) => it.id !== tempId));
+        console.error("Failed to add checklist item");
+      } else {
+        // Replace temp ID with real ID from server
+        setLocalItems((prev) =>
+          prev.map((it) =>
+            it.id === tempId
+              ? { id: data.data.id, label: data.data.title, completed: data.data.completed }
+              : it
+          )
+        );
+      }
+    } catch (error) {
+      setLocalItems((prev) => prev.filter((it) => it.id !== tempId));
+      console.error("Network error:", error);
+    } finally {
+      setAdding(false);
+      inputRef.current?.focus();
+    }
+  }
+
+  // -------------------------------------------------------
+  // Delete (Stage 2)
+  // -------------------------------------------------------
+  async function handleDelete(id) {
+    if (!window.confirm("Remove this checklist item?")) return;
+
+    // Optimistic: remove from list immediately
+    const removedItem = localItems.find((it) => it.id === id);
+    const removedIndex = localItems.findIndex((it) => it.id === id);
+    setLocalItems((prev) => prev.filter((it) => it.id !== id));
+
+    try {
+      const res = await fetch(`/api/checklist/${id}`, { method: "DELETE" });
+
+      if (!res.ok) {
+        // Rollback: re-insert at original position
+        setLocalItems((prev) => {
+          const next = [...prev];
+          next.splice(removedIndex, 0, removedItem);
+          return next;
+        });
+        console.error("Failed to delete checklist item");
+      }
+    } catch (error) {
+      setLocalItems((prev) => {
+        const next = [...prev];
+        next.splice(removedIndex, 0, removedItem);
+        return next;
+      });
       console.error("Network error:", error);
     }
   }
@@ -79,9 +154,7 @@ export default function ChecklistCard({ items }) {
       </div>
 
       {localItems.length === 0 ? (
-        <p className={styles.empty}>
-          No checklist items yet.
-        </p>
+        <p className={styles.empty}>No checklist items yet.</p>
       ) : (
         <ul className={styles.list}>
           {localItems.map((item) => (
@@ -98,9 +171,46 @@ export default function ChecklistCard({ items }) {
                 />
                 <span className={styles.label}>{item.label}</span>
               </button>
+
+              {/* Delete button — only show for real items (not temp IDs) */}
+              {!item.id.startsWith("temp-") && (
+                <button
+                  type="button"
+                  onClick={() => handleDelete(item.id)}
+                  aria-label={`Remove "${item.label}"`}
+                  className={styles.deleteButton}
+                  title="Remove item"
+                >
+                  ✕
+                </button>
+              )}
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Add item form — only shown when an active internship exists */}
+      {internshipId && (
+        <form onSubmit={handleAdd} className={styles.addForm}>
+          <input
+            ref={inputRef}
+            type="text"
+            value={addText}
+            onChange={(e) => setAddText(e.target.value)}
+            placeholder="Add a requirement…"
+            disabled={adding}
+            className={styles.addInput}
+            aria-label="New checklist item title"
+          />
+          <button
+            type="submit"
+            disabled={adding || !addText.trim()}
+            className={styles.addButton}
+            aria-label="Add checklist item"
+          >
+            +
+          </button>
+        </form>
       )}
     </section>
   );
