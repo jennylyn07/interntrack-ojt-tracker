@@ -148,17 +148,18 @@ export async function getDashboardOverview(userId, preferredInternshipId = null)
 }
 
 // -------------------------------------------------------
-// getUserInternships(userId)
-// Returns ALL internships for a user with computed hours.
-// Used by the /dashboard/internships list page.
+// getUserInternships(userId, showArchived?)
+// Returns internships for a user with computed hours.
+// showArchived=false (default): only non-archived.
+// showArchived=true: only archived (for the "Show archived" view).
 // -------------------------------------------------------
-export async function getUserInternships(userId) {
+export async function getUserInternships(userId, showArchived = false) {
   if (!userId) {
     throw new Error("getUserInternships: userId is required");
   }
 
   const internships = await prisma.internship.findMany({
-    where: { userId },
+    where: { userId, archived: showArchived },
     orderBy: { startDate: "desc" },
     include: {
       logEntries: { select: { hours: true } },
@@ -173,6 +174,7 @@ export async function getUserInternships(userId) {
     startDate: internship.startDate,
     endDate: internship.endDate,
     status: internship.status,
+    archived: internship.archived,
     completedHours: internship.logEntries.reduce((sum, e) => sum + e.hours, 0),
   }));
 }
@@ -186,7 +188,7 @@ export async function getUserInternships(userId) {
 export async function getActiveInternships(userId) {
   if (!userId) return [];
   return await prisma.internship.findMany({
-    where: { userId, status: "ACTIVE" },
+    where: { userId, status: "ACTIVE", archived: false },
     orderBy: { startDate: "desc" },
     select: { id: true, company: true },
   });

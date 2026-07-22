@@ -33,11 +33,13 @@ Before anything else — here's what's actually running today versus what's desi
 | Checklist read / toggle UI | ✅ Built |
 | Checklist create / delete UI | ✅ Built — Stage 2 complete |
 | Internship history — list, add, edit per-ID | ✅ Built — Stage 2 complete |
+| Internship archive (soft-hide, reversible) | ✅ Built — Stage 3 complete |
+| Internship delete with count-based modal guard | ✅ Built — Stage 3 complete |
 | Optimistic UI updates | ✅ Built |
 | Input validation with Zod | ✅ Built |
 | Dashboard loading skeleton (`loading.js`) | ✅ Built |
 | Dashboard error boundary (`error.js`) | ✅ Built |
-| Database schema & Prisma migrations | ✅ Built (4 migrations tracked) |
+| Database schema & Prisma migrations | ✅ Built (5 migrations tracked) |
 | Development-safe database connections (singleton) | ✅ Built |
 | Authentication (Better Auth) | ✅ Built — Phase 7 complete |
 | Session-based IDOR protection | ✅ Built & verified (14/14 checks pass) |
@@ -91,7 +93,7 @@ ojt-tracker/
 │   │   │   └── logs/            # Log entry CRUD endpoints (+ /[id])
 │   │   ├── dashboard/           # Student dashboard UI
 │   │   │   ├── internships/     # Internship management
-│   │   │   │   ├── page.js      # List all internships (active + history)
+│   │   │   │   ├── page.js      # List all internships (active, history, archived)
 │   │   │   │   ├── new/         # Create new internship form
 │   │   │   │   └── [id]/edit/   # Edit a specific internship by ID
 │   │   │   ├── logs/new/        # Add daily log entry form
@@ -105,7 +107,12 @@ ojt-tracker/
 │   │   └── page.js              # Root route: redirects to /dashboard if authenticated, /login if not
 │   │
 │   ├── components/
-│   │   ├── dashboard/           # Dashboard components (ProgressCard, ChecklistCard, SignOutButton, …)
+│   │   ├── dashboard/           # Dashboard components:
+│   │   │   │                    #   ProgressCard, ChecklistCard, DailyLogCard,
+│   │   │   │                    #   ActivityTimeline, QuickActions, DashboardHeader,
+│   │   │   │                    #   InternshipSwitcher (Stage 2 — multi-active dropdown),
+│   │   │   │                    #   InternshipList (Stage 3 — archive/delete UI),
+│   │   │   │                    #   SignOutButton
 │   │   └── ui/                  # Generic UI components (ThemeToggle)
 │   │
 │   ├── generated/               # Prisma client — gitignored, rebuilt automatically on install

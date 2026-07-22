@@ -15,6 +15,7 @@ const updateInternshipSchema = z.object({
   startDate: z.string().datetime("Invalid date format").optional(),
   endDate: z.string().datetime("Invalid date format").optional().nullable(),
   status: z.enum(["PENDING", "ACTIVE", "COMPLETED", "CANCELLED"]).optional(),
+  archived: z.boolean().optional(),
 });
 
 // -------------------------------------------------------

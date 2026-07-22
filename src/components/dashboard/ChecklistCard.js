@@ -107,16 +107,19 @@ export default function ChecklistCard({ items, internshipId }) {
     }
   }
 
+  const [deleteTarget, setDeleteTarget] = useState(null); // item object or null
+
   // -------------------------------------------------------
   // Delete (Stage 2)
   // -------------------------------------------------------
-  async function handleDelete(id) {
-    if (!window.confirm("Remove this checklist item?")) return;
+  async function confirmDelete(id) {
+    const item = localItems.find((it) => it.id === id);
+    if (!item) return;
 
     // Optimistic: remove from list immediately
-    const removedItem = localItems.find((it) => it.id === id);
     const removedIndex = localItems.findIndex((it) => it.id === id);
     setLocalItems((prev) => prev.filter((it) => it.id !== id));
+    setDeleteTarget(null);
 
     try {
       const res = await fetch(`/api/checklist/${id}`, { method: "DELETE" });
@@ -125,7 +128,7 @@ export default function ChecklistCard({ items, internshipId }) {
         // Rollback: re-insert at original position
         setLocalItems((prev) => {
           const next = [...prev];
-          next.splice(removedIndex, 0, removedItem);
+          next.splice(removedIndex, 0, item);
           return next;
         });
         console.error("Failed to delete checklist item");
@@ -133,7 +136,7 @@ export default function ChecklistCard({ items, internshipId }) {
     } catch (error) {
       setLocalItems((prev) => {
         const next = [...prev];
-        next.splice(removedIndex, 0, removedItem);
+        next.splice(removedIndex, 0, item);
         return next;
       });
       console.error("Network error:", error);
@@ -144,6 +147,78 @@ export default function ChecklistCard({ items, internshipId }) {
 
   return (
     <section className={styles.card} aria-label="Internship checklist">
+      {/* Delete Item Confirmation Modal */}
+      {deleteTarget && (
+        <div
+          onClick={() => setDeleteTarget(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 1000,
+            background: "rgba(0,0,0,0.45)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "var(--space-3)",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            style={{
+              background: "var(--surface)",
+              borderRadius: "var(--radius-lg)",
+              padding: "var(--space-4)",
+              boxShadow: "0 24px 48px rgba(0,0,0,0.25)",
+              maxWidth: 400,
+              width: "100%",
+            }}
+          >
+            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "var(--space-2)" }}>
+              Remove Checklist Item?
+            </h3>
+            <p style={{ fontSize: "0.95rem", lineHeight: 1.5, color: "var(--text-primary)", marginBottom: "var(--space-3)" }}>
+              Are you sure you want to remove &ldquo;<strong>{deleteTarget.label}</strong>&rdquo;?
+            </p>
+            <div style={{ display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                style={{
+                  padding: "8px 18px",
+                  borderRadius: 999,
+                  border: "1px solid var(--muted)",
+                  background: "var(--surface)",
+                  color: "var(--text-primary)",
+                  fontSize: "0.85rem",
+                  fontWeight: 500,
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => confirmDelete(deleteTarget.id)}
+                style={{
+                  padding: "8px 18px",
+                  borderRadius: 999,
+                  border: "none",
+                  background: "#ff3b30",
+                  color: "#fff",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={styles.header}>
         <div>
           <h2 className={styles.title}>Checklist</h2>
@@ -176,7 +251,7 @@ export default function ChecklistCard({ items, internshipId }) {
               {!item.id.startsWith("temp-") && (
                 <button
                   type="button"
-                  onClick={() => handleDelete(item.id)}
+                  onClick={() => setDeleteTarget(item)}
                   aria-label={`Remove "${item.label}"`}
                   className={styles.deleteButton}
                   title="Remove item"

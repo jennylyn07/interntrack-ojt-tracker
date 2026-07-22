@@ -40,6 +40,7 @@ model Internship {
   startDate     DateTime
   endDate       DateTime?
   status        InternshipStatus @default(PENDING)
+  archived      Boolean          @default(false)
   checklist     ChecklistItem[]
   user          User             @relation(fields: [userId], references: [id])
   logEntries    LogEntry[]
