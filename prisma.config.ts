@@ -1,5 +1,11 @@
-import "dotenv/config";
-import { defineConfig } from "prisma/config";
+import { config as dotenv } from "dotenv";
+import { defineConfig, env } from "prisma/config";
+
+// Load environment variables the same way Next.js does:
+// .env is the base file (can be committed); .env.local overrides it (gitignored, real secrets).
+// dotenv/config by default only reads .env, so we explicitly load both.
+dotenv({ path: ".env" });
+dotenv({ path: ".env.local", override: true });
 
 // IMPORTANT: datasource.url must be the DIRECT (non-pooled) connection string.
 // Neon provides two URLs:
@@ -12,6 +18,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DIRECT_URL"],
+    url: env("DIRECT_URL"),
   },
 });
