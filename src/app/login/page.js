@@ -43,9 +43,11 @@ function LoginForm() {
         return;
       }
 
-      // Successful login — redirect to dashboard
+      // Successful login — navigate to dashboard.
+      // Do NOT call router.refresh() here: it fires before the push navigation
+      // settles and re-renders the current page server-side with stale headers,
+      // causing getSession() to return null and bounce back to /login.
       router.push(callbackUrl);
-      router.refresh();
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
       setLoading(false);

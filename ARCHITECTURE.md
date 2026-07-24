@@ -291,3 +291,35 @@ Phase 7 is done. Here's what was actually implemented:
 7. **Migration tracking fixed** — Better Auth schema changes (applied via `db push`) were captured as `prisma/migrations/20260716000000_add_better_auth/migration.sql` and registered with `migrate resolve --applied`. `prisma migrate status` now shows 4 migrations, schema up to date.
 
 The next milestone is deployment (Section 8) — wiring up a production database with connection pooling and setting environment variables in Vercel.
+
+---
+
+## 11. Known Minor Gaps (Roadmap)
+
+These are small, documented gaps that don't block the current milestone but should be revisited before the project is considered fully production-hardened.
+
+### 11.1 — `BETTER_AUTH_URL` must include the full scheme
+
+**Status:** Fixed (2026-07-24). Documented here for reference.
+
+`BETTER_AUTH_URL` must be the full, scheme-qualified URL of the deployed app — e.g. `https://intern-track-ojt-tracker.vercel.app` — **not** just the bare hostname. Without the `https://` prefix, Better Auth's internal URL parser cannot construct a valid base URL. The consequence in production is that `auth.api.getSession()` silently returns `null` (the session lookup fails its origin validation) even when the session cookie is correctly present in the browser — resulting in an infinite `/login` redirect loop on the `/dashboard` route.
+
+This is distinct from the session cookie being absent: the proxy's optimistic cookie-presence check passes, but the server component's authoritative `getSession()` call fails. The fix is a one-character environment variable correction (`BETTER_AUTH_URL="https://…"`) applied both in the local `.env` and in the Vercel dashboard under Project Settings → Environment Variables.
+
+### 11.2 — Better Auth rejects Vercel auto-generated branch-preview URLs
+
+**Status:** Known gap, low priority, not yet addressed.
+
+When using Vercel's auto-generated branch-preview URLs (e.g. `https://intern-track-ojt-tracker-git-main-jennylyns-projects.vercel.app`), the Better Auth server logs an error:
+
+```
+[Better Auth]: Invalid origin: https://intern-track-ojt-tracker-git-main-jennylyns-projects.vercel.app
+```
+
+This is expected behavior: Better Auth validates incoming request origins against `BETTER_AUTH_URL`, and Vercel's preview URLs don't match the configured production origin. Authentication will fail on preview deployments as a result.
+
+**Future fix options:**
+- Set `BETTER_AUTH_URL` to `https://intern-track-ojt-tracker.vercel.app` in all Vercel environments (production *and* preview), so at least the main preview branch hits the production auth endpoint — acceptable for a portfolio project.
+- Or, configure Better Auth's `trustedOrigins` array to explicitly whitelist the known Vercel preview URL pattern. This is the cleaner, per-environment solution and is documented in [Better Auth's docs](https://www.better-auth.com/docs/concepts/options#trusted-origins).
+
+Not worth addressing until preview-environment testing becomes a regular part of the workflow.

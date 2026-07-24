@@ -19,6 +19,10 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/prisma";
 
 export const auth = betterAuth({
+  // Explicitly set the base URL so Better Auth doesn't have to auto-detect
+  // it from request headers at serverless cold-start — silent detection
+  // failures there cause getSession() to return null even with a valid cookie.
+  baseURL: process.env.BETTER_AUTH_URL,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
