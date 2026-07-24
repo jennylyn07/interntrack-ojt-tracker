@@ -3,8 +3,11 @@
 //
 // To prevent unnecessary database lookups on every single asset/page request,
 // the proxy performs an optimistic check:
-// - It inspects the request cookies to see if "better-auth.session_token" exists.
-// - If the cookie is absent, it redirects dashboard views to /login, and
+// - It inspects the request cookies to see if a Better Auth session token exists.
+// - Better Auth uses the plain cookie name ("better-auth.session_token") over HTTP
+//   (local dev) and the __Secure- prefixed name ("__Secure-better-auth.session_token")
+//   over HTTPS (production). Both are checked.
+// - If no session cookie is found, it redirects dashboard views to /login, and
 //   rejects API requests (except /api/auth/*) with a 401 Unauthorized status.
 //
 // IMPORTANT: Every endpoint still validates the session server-side for complete security.
@@ -13,7 +16,13 @@ import { NextResponse } from "next/server";
 
 export async function proxy(request) {
   const { pathname } = request.nextUrl;
-  const sessionToken = request.cookies.get("better-auth.session_token");
+
+  // Better Auth uses the __Secure- cookie prefix automatically when the app
+  // runs over HTTPS (production). Locally over HTTP it uses the plain name.
+  // We must check both so the proxy works in all environments.
+  const sessionToken =
+    request.cookies.get("__Secure-better-auth.session_token") ??
+    request.cookies.get("better-auth.session_token");
 
   // Protect all dashboard views
   if (pathname.startsWith("/dashboard")) {
