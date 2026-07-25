@@ -1,6 +1,6 @@
 # Project Architecture & Tech Stack: InternTrack OJT Tracker
 
-> **Revision notes:** Updated 2026-07-16 — Phase 7 (Better Auth) is now complete. Authentication, session-based IDOR protection, and password hashing are all live. Section 0 status table updated accordingly; Phase 7 references throughout updated from "planned" to "implemented." Migration tracking is now fully captured in `prisma/migrations/` (4 migrations, schema up to date).
+> **Revision notes:** Updated 2026-07-24 — Production deployment is now live at `https://intern-track-ojt-tracker.vercel.app`. A post-deployment debugging session resolved a three-layer redirect loop bug (proxy cookie name mismatch, missing `baseURL`, `router.refresh()` race — see Section 11). Status table updated; Section 8 annotated as live.
 
 Welcome! If you are preparing for a career in software engineering, this project is built using the same **architectural patterns, frameworks, and tools** that modern tech companies use.
 
@@ -44,9 +44,9 @@ Before anything else — here's what's actually running today versus what's desi
 | Authentication (Better Auth) | ✅ Built — Phase 7 complete |
 | Session-based IDOR protection | ✅ Built & verified (14/14 checks pass) |
 | Password hashing | ✅ Built — Better Auth handles hashing via scrypt |
-| Route protection (proxy.js) | ✅ Built — cookie-presence check in Next.js proxy |
+| Route protection (proxy.js) | ✅ Built — checks both `__Secure-` (HTTPS/production) and plain (HTTP/dev) cookie names |
 | Production-safe connection pooling | 🔜 Planned — see Section 4B |
-| Deployment | 🔜 Planned — see Section 8 |
+| Deployment | ✅ Live — `https://intern-track-ojt-tracker.vercel.app` (2026-07-24) |
 
 All security and auth behavior described below reflects the **current live implementation**, not just a target design.
 
@@ -252,13 +252,15 @@ Vitest or Jest are both reasonable choices for a Next.js project; either is fine
 
 Given the stack, Vercel is the natural fit — it's built by the same team as Next.js and is the default target most Next.js tutorials and docs assume.
 
+> **Status: Live as of 2026-07-24.** Production URL: `https://intern-track-ojt-tracker.vercel.app`. All five items below are in place.
+
 The pieces that need to be in place before "it's deployed" is actually true:
 
-1. **Connect the GitHub repo to Vercel** — this gets automatic deploys on every push to the main branch.
-2. **Set every variable from Section 5** in the Vercel dashboard — the app will fail to build or run without them.
-3. **Make sure `prisma generate` runs on every build** — usually wired into a `postinstall` script — so the generated client (Section 2) always matches the current schema.
-4. **Run `prisma migrate deploy` against the production database** before or as part of each deploy — Vercel's build step does not do this automatically, so it has to be added deliberately (a CI step, or a manual command run once per schema change).
-5. **Point production `DATABASE_URL` at the pooled connection string** from Section 4B, not the direct one.
+1. **Connect the GitHub repo to Vercel** ✅ — automatic deploys on every push to the main branch.
+2. **Set every variable from Section 5** in the Vercel dashboard ✅ — `DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (must include `https://` scheme — see Section 11.1).
+3. **Make sure `prisma generate` runs on every build** ✅ — wired into the `postinstall` script in `package.json`.
+4. **Run `prisma migrate deploy` against the production database** — Vercel's build step does not do this automatically; run it manually per schema change or add a CI step.
+5. **Point production `DATABASE_URL` at the pooled connection string** from Section 4B ✅ — Neon pooled URL in use.
 
 This is the section that turns "I built something" into "I shipped something" — a live URL is the actual deliverable for a portfolio, more than any of the code underneath it.
 
@@ -290,36 +292,60 @@ Phase 7 is done. Here's what was actually implemented:
    - Checks 10–12 (unauthenticated access): all returned 401 ✅
 7. **Migration tracking fixed** — Better Auth schema changes (applied via `db push`) were captured as `prisma/migrations/20260716000000_add_better_auth/migration.sql` and registered with `migrate resolve --applied`. `prisma migrate status` now shows 4 migrations, schema up to date.
 
-The next milestone is deployment (Section 8) — wiring up a production database with connection pooling and setting environment variables in Vercel.
+Deployment followed on 2026-07-24 — see Section 8 (live) and Section 11 (post-deployment bugs found and fixed).
 
 ---
 
-## 11. Known Minor Gaps (Roadmap)
+## 11. Known Issues — Post-Deployment Bugs (All Fixed 2026-07-24)
 
-These are small, documented gaps that don't block the current milestone but should be revisited before the project is considered fully production-hardened.
+All four of these were found and resolved during the first production login test after deployment.
 
-### 11.1 — `BETTER_AUTH_URL` must include the full scheme
+### 11.1 — `BETTER_AUTH_URL` must include the full `https://` scheme
 
-**Status:** Fixed (2026-07-24). Documented here for reference.
+**Status:** Fixed (2026-07-24).
 
-`BETTER_AUTH_URL` must be the full, scheme-qualified URL of the deployed app — e.g. `https://intern-track-ojt-tracker.vercel.app` — **not** just the bare hostname. Without the `https://` prefix, Better Auth's internal URL parser cannot construct a valid base URL. The consequence in production is that `auth.api.getSession()` silently returns `null` (the session lookup fails its origin validation) even when the session cookie is correctly present in the browser — resulting in an infinite `/login` redirect loop on the `/dashboard` route.
-
-This is distinct from the session cookie being absent: the proxy's optimistic cookie-presence check passes, but the server component's authoritative `getSession()` call fails. The fix is a one-character environment variable correction (`BETTER_AUTH_URL="https://…"`) applied both in the local `.env` and in the Vercel dashboard under Project Settings → Environment Variables.
+`BETTER_AUTH_URL` must be the full, scheme-qualified URL — e.g. `https://intern-track-ojt-tracker.vercel.app` — **not** the bare hostname. Without the `https://` prefix, Better Auth's URL parser cannot construct a valid base URL. Two downstream effects: (a) `auth.api.getSession()` may silently return `null` due to failed origin validation; (b) Better Auth does not know to use `__Secure-` prefixed cookies (see 11.3). Fix applied in both the local `.env` and the Vercel dashboard env var.
 
 ### 11.2 — Better Auth rejects Vercel auto-generated branch-preview URLs
 
 **Status:** Known gap, low priority, not yet addressed.
 
-When using Vercel's auto-generated branch-preview URLs (e.g. `https://intern-track-ojt-tracker-git-main-jennylyns-projects.vercel.app`), the Better Auth server logs an error:
+When testing on Vercel's auto-generated branch-preview URLs (e.g. `https://intern-track-ojt-tracker-git-main-jennylyns-projects.vercel.app`), Better Auth logs:
 
 ```
 [Better Auth]: Invalid origin: https://intern-track-ojt-tracker-git-main-jennylyns-projects.vercel.app
 ```
 
-This is expected behavior: Better Auth validates incoming request origins against `BETTER_AUTH_URL`, and Vercel's preview URLs don't match the configured production origin. Authentication will fail on preview deployments as a result.
+This is expected: Better Auth validates origins against `BETTER_AUTH_URL`, and Vercel's preview URLs don't match the production origin. Auth fails on preview deployments as a result. Not worth addressing until preview-environment testing becomes a regular workflow step. Future fix: configure `trustedOrigins` in `auth.js` (see [Better Auth docs](https://www.better-auth.com/docs/concepts/options#trusted-origins)).
 
-**Future fix options:**
-- Set `BETTER_AUTH_URL` to `https://intern-track-ojt-tracker.vercel.app` in all Vercel environments (production *and* preview), so at least the main preview branch hits the production auth endpoint — acceptable for a portfolio project.
-- Or, configure Better Auth's `trustedOrigins` array to explicitly whitelist the known Vercel preview URL pattern. This is the cleaner, per-environment solution and is documented in [Better Auth's docs](https://www.better-auth.com/docs/concepts/options#trusted-origins).
+### 11.3 — Proxy checked the wrong cookie name in production (the main blocker)
 
-Not worth addressing until preview-environment testing becomes a regular part of the workflow.
+**Status:** Fixed (2026-07-24) in `src/proxy.js`.
+
+This was the actual cause of the redirect loop. Better Auth automatically uses the `__Secure-` cookie prefix when the app runs over HTTPS:
+
+| Environment | Cookie name set by Better Auth |
+| :--- | :--- |
+| Local dev (`http://`) | `better-auth.session_token` |
+| Production (`https://`) | `__Secure-better-auth.session_token` |
+
+The proxy was only checking the HTTP/dev name. In production the browser had the correct `__Secure-` prefixed cookie, but the proxy couldn't see it and redirected every request — before the dashboard server component was ever reached. The `?callbackUrl=%2Fdashboard` in the redirect URL was the diagnostic clue: that param is only added by the proxy, not by `dashboard/page.js`'s `redirect("/login")`.
+
+Fix: check both names.
+```js
+const sessionToken =
+  request.cookies.get("__Secure-better-auth.session_token") ??
+  request.cookies.get("better-auth.session_token");
+```
+
+### 11.4 — `router.refresh()` in the login handler caused a race condition
+
+**Status:** Fixed (2026-07-24) in `src/app/login/page.js`.
+
+After a successful sign-in, the login handler called `router.push(callbackUrl)` followed immediately by `router.refresh()`. The `refresh()` call fires synchronously before the push navigation settles — it re-renders the **current page** (`/login`) server-side with stale request headers that don't yet include the freshly-set session cookie. This made `getSession()` return `null` on the re-render of the login page itself, and could interfere with the navigation timing in some network conditions. Fix: remove `router.refresh()` entirely — `router.push()` to `/dashboard` already triggers a full server render with fresh headers on the destination page.
+
+### 11.5 — `auth.js` had no explicit `baseURL`
+
+**Status:** Fixed (2026-07-24) in `src/lib/auth.js`.
+
+Without `baseURL` set explicitly, Better Auth auto-detects the app URL from incoming request headers at serverless cold-start. This detection is unreliable in Vercel's environment and can silently cause `getSession()` to return `null`. Fix: pass `baseURL: process.env.BETTER_AUTH_URL` directly in the `betterAuth({})` config object.

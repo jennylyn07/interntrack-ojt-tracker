@@ -1,17 +1,18 @@
 # OJT Tracker – Project To-Do & Roadmap
 
-Last updated: 2026-07-16
+Last updated: 2026-07-24
 
 ## Summary
-A Next.js 16 (App Router) + Prisma + PostgreSQL app for students to log OJT hours, view progress, and manage profile data. Authentication is implemented via Better Auth with real session-based security. All core features through Phase 7 are complete.
+A Next.js 16 (App Router) + Prisma + PostgreSQL app for students to log OJT hours, view progress, and manage profile data. Authentication is implemented via Better Auth with real session-based security. All core features through Phase 7 are complete and the app is deployed to production.
 
 ## Status Overview
 - Framework: Next.js 16, React 19
 - ORM: Prisma (client output to `src/generated/prisma`), 4 migrations tracked
 - Auth: Better Auth ✅ (replaced hardcoded temp-user-1 placeholder)
-- DB: PostgreSQL (local: `localhost:5432/ojt_tracker`)
-- Route protection: `src/proxy.js` (cookie-presence check) + per-route `getSession()` calls
+- DB: PostgreSQL via Neon (pooled connection string in production)
+- Route protection: `src/proxy.js` (checks both `__Secure-` and plain cookie names) + per-route `getSession()` calls
 - IDOR protection: verified 2026-07-16 — 14/14 test checks passed
+- Production URL: https://intern-track-ojt-tracker.vercel.app ✅ Live
 
 ---
 
@@ -27,13 +28,17 @@ A Next.js 16 (App Router) + Prisma + PostgreSQL app for students to log OJT hour
   - `20260716000000_add_better_auth` (captures Better Auth `db push` changes)
 - [x] Prisma client singleton (`src/lib/prisma.js`)
 - [x] `.env` with `DATABASE_URL` and `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL`
+- [x] `.env.example` committed with all required variable names
 
 ### Authentication (Phase 7)
 - [x] Better Auth installed and configured (`src/lib/auth.js`)
+  - [x] Explicit `baseURL: process.env.BETTER_AUTH_URL` set (fixes silent cold-start detection failures on Vercel)
 - [x] Sign-up page (`/register`) and login page (`/login`)
+  - [x] `router.refresh()` removed from login success handler (was causing a race condition with the session cookie)
 - [x] Session cookie set on sign-in; verified readable by proxy and route handlers
 - [x] All `temp-user-1` hardcoded user IDs replaced with `session.user.id`
 - [x] Route protection via `src/proxy.js` (Next.js 16 proxy, replaces middleware.js)
+  - [x] Proxy checks both `__Secure-better-auth.session_token` (HTTPS/production) and `better-auth.session_token` (HTTP/dev)
 - [x] Password hashing via Better Auth (scrypt)
 
 ### Security Verification
@@ -51,27 +56,31 @@ A Next.js 16 (App Router) + Prisma + PostgreSQL app for students to log OJT hour
 - [x] Route-level `loading.js` and `error.js` for dashboard
 - [x] Sign-out button (`/src/components/dashboard/SignOutButton.js`)
 
+### Deployment
+- [x] GitHub repo connected to Vercel — automatic deploys on push to `main`
+- [x] Environment variables set in Vercel dashboard:
+  - `DATABASE_URL` (Neon pooled connection string)
+  - `DIRECT_URL` (Neon direct connection for migrations)
+  - `BETTER_AUTH_SECRET`
+  - `BETTER_AUTH_URL` = `https://intern-track-ojt-tracker.vercel.app` (must include `https://`)
+- [x] `prisma generate` wired to `postinstall` in `package.json`
+- [x] Production DB on Neon with pooled connection string
+
 ---
 
 ## Pending
 
-### Deployment (next priority)
-- [ ] Connect GitHub repo to Vercel for automatic deploys
-- [ ] Set environment variables in Vercel dashboard:
-  - `DATABASE_URL` (pooled connection string for production)
-  - `DIRECT_URL` (direct connection for migrations)
-  - `BETTER_AUTH_SECRET`
-  - `BETTER_AUTH_URL` (production domain)
-- [ ] Add `prisma generate` to `postinstall` script in `package.json`
-- [ ] Run `prisma migrate deploy` as part of each production deploy (not `migrate dev`)
-- [ ] Switch to managed PostgreSQL with connection pooling (Neon / Supabase / Vercel Postgres)
+### Production Reliability
+- [ ] Run `prisma migrate deploy` as a CI step on each deploy (currently manual per schema change)
+- [ ] Switch `DATABASE_URL` to the Neon **pooler** hostname (`ep-...-pooler.ap-southeast-1...`) for proper connection pooling under traffic — see ARCHITECTURE.md Section 4B
+
+### Known Minor Gaps (see ARCHITECTURE.md Section 11)
+- [ ] **11.2** — Better Auth rejects Vercel preview-branch URLs (`Invalid origin` error). Fix: add preview URL to `trustedOrigins` in `auth.js`. Low priority until preview testing is a regular workflow.
 
 ### Polish & Reliability
-- [ ] `.env.example` file listing all required variable names (no secrets)
 - [ ] Zod schema unit tests (high value, low effort — first testing target)
 - [ ] Integration test for checklist update flow (core interactive feature)
 - [ ] Pagination on log list if entry count grows large
-- [ ] Empty-state UI when no internship or logs exist yet
 
 ---
 
@@ -86,6 +95,6 @@ A Next.js 16 (App Router) + Prisma + PostgreSQL app for students to log OJT hour
 ---
 
 ## Next Steps
-1. Deploy to Vercel (Section 8 of ARCHITECTURE.md) — this turns the portfolio piece from "I built it" to "I shipped it"
-2. Add `.env.example`
+1. Add `prisma migrate deploy` to CI/CD pipeline so schema changes deploy automatically
+2. Confirm `DATABASE_URL` on Vercel points to the Neon **pooler** endpoint (Section 4B)
 3. Write Zod schema tests
