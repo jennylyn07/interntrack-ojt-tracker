@@ -1,69 +1,137 @@
-/* CSS Reset */
+/* ═══════════════════════════════════════════════════════════════════════════
+   globals.css — InternTrack Design System
+   Deep Neomorphism Theme: teal academic palette with rich soft-UI depth.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Google Font import ─────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800&display=swap');
+
+/* ── CSS Reset ──────────────────────────────────────────────────────────── */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Theme Variables */
+/* ══════════════════════════════════════════════════════
+   LIGHT THEME — warm off-white neumorphic surface
+   ══════════════════════════════════════════════════════ */
 :root {
-  /* Base palette (Light). Components should consume variables instead of hard-coding colors. */
-  --bg-primary: #f2f2f0;
-  --surface: #ffffff;
-  --text-primary: #000d0c;
-  --accent: #4c736f;
-  --muted: #d9d5d2;
+  /* ── Core palette ─────────────────────────────────── */
+  --bg-primary:   #e4e8e7;       /* main background — the "clay" surface */
+  --surface:      #e4e8e7;       /* card surface (same as bg for neomorphism) */
+  --text-primary: #0a1a18;       /* near-black teal */
+  --text-muted:   rgba(10, 26, 24, 0.55);
+  --accent:       #3d7068;       /* deep teal */
+  --accent-light: #5a9e95;       /* lighter teal */
+  --accent-glow:  rgba(61, 112, 104, 0.18);
+  --muted:        #c4c9c7;
+  --danger:       #c0392b;
+  --success:      #27ae60;
 
-  /* Design tokens: consistent spacing + radius for a calm, academic UI. */
-  --radius-lg: 20px; /* 16–24px range requested */
-  --radius-md: 16px;
+  /* ── Spacing ──────────────────────────────────────── */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 2.5rem;
 
-  /* 8px spacing system */
-  --space-1: 0.5rem; /* 8px */
-  --space-2: 1rem; /* 16px */
-  --space-3: 1.5rem; /* 24px */
-  --space-4: 2rem; /* 32px */
+  /* ── Border radii ─────────────────────────────────── */
+  --radius-sm:   10px;
+  --radius-md:   16px;
+  --radius-lg:   22px;
+  --radius-xl:   32px;
+  --radius-pill: 999px;
 
-  /* Motion */
-  --transition-fast: 150ms;
-  --transition-med: 220ms;
+  /* ── Motion ───────────────────────────────────────── */
+  --transition-fast:  150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-med:   260ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:  420ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Neumorphism shadows: used by components via var(). */
+  /* ── NEOMORPHISM SHADOWS (light) ──────────────────── */
   --shadow-soft-outer:
-    6px 6px 12px rgba(0, 0, 0, 0.08),
-    -6px -6px 12px rgba(255, 255, 255, 0.7);
+    8px 8px 20px rgba(160, 175, 172, 0.75),
+    -6px -6px 16px rgba(255, 255, 255, 0.9);
+
+  --shadow-elevated:
+    12px 12px 30px rgba(148, 164, 160, 0.72),
+    -8px -8px 22px rgba(255, 255, 255, 0.92);
+
   --shadow-soft-inner:
-    inset 2px 2px 6px rgba(0, 0, 0, 0.06),
-    inset -2px -2px 6px rgba(255, 255, 255, 0.7);
-  --shadow-focus: 0 0 0 3px rgba(76, 115, 111, 0.35);
+    inset 4px 4px 10px rgba(155, 172, 168, 0.65),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.85);
+
+  --shadow-deep-inner:
+    inset 6px 6px 14px rgba(148, 164, 160, 0.72),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.88);
+
+  --shadow-focus:
+    0 0 0 3px rgba(61, 112, 104, 0.28),
+    8px 8px 20px rgba(160, 175, 172, 0.55),
+    -6px -6px 16px rgba(255, 255, 255, 0.8);
+
+  --shadow-accent:
+    4px 4px 14px rgba(61, 112, 104, 0.32),
+    -3px -3px 8px rgba(255, 255, 255, 0.65);
+
+  --shadow-pressed:
+    inset 6px 6px 16px rgba(148, 164, 160, 0.78),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.75);
 }
 
-/* Dark theme is activated by setting: document.documentElement.dataset.theme = "dark" */
+/* ══════════════════════════════════════════════════════
+   DARK THEME — deep teal neumorphic surface
+   ══════════════════════════════════════════════════════ */
 :root[data-theme="dark"] {
-  --bg-primary: #000d0c;
-  --surface: #012623;
-  --text-primary: #f2f2f0;
-  --accent: #4c736f;
-  --muted: #2f3a39;
+  --bg-primary:   #0b1b19;
+  --surface:      #0b1b19;
+  --text-primary: #d8eeeb;
+  --text-muted:   rgba(216, 238, 235, 0.5);
+  --accent:       #57a99e;
+  --accent-light: #7eccc3;
+  --accent-glow:  rgba(87, 169, 158, 0.2);
+  --muted:        #1c3330;
 
-  /* Dark neumorphism uses subtle inset highlights/shadows. */
   --shadow-soft-outer:
-    8px 8px 18px rgba(0, 0, 0, 0.35),
-    -6px -6px 16px rgba(255, 255, 255, 0.04);
+    8px 8px 22px rgba(3, 9, 8, 0.72),
+    -5px -5px 14px rgba(20, 44, 40, 0.55);
+
+  --shadow-elevated:
+    14px 14px 34px rgba(3, 8, 7, 0.82),
+    -7px -7px 20px rgba(18, 40, 37, 0.58);
+
   --shadow-soft-inner:
-    inset 2px 2px 6px rgba(0, 0, 0, 0.4),
-    inset -2px -2px 6px rgba(255, 255, 255, 0.05);
-  --shadow-focus: 0 0 0 3px rgba(242, 242, 240, 0.18);
+    inset 4px 4px 10px rgba(3, 9, 8, 0.68),
+    inset -3px -3px 8px rgba(18, 40, 37, 0.5);
+
+  --shadow-deep-inner:
+    inset 6px 6px 14px rgba(3, 8, 7, 0.78),
+    inset -4px -4px 10px rgba(18, 40, 37, 0.5);
+
+  --shadow-focus:
+    0 0 0 3px rgba(87, 169, 158, 0.3),
+    8px 8px 22px rgba(3, 9, 8, 0.6),
+    -5px -5px 14px rgba(18, 40, 37, 0.4);
+
+  --shadow-accent:
+    4px 4px 14px rgba(3, 9, 8, 0.65),
+    -3px -3px 8px rgba(18, 40, 37, 0.45);
+
+  --shadow-pressed:
+    inset 6px 6px 18px rgba(3, 8, 7, 0.82),
+    inset -4px -4px 10px rgba(18, 40, 37, 0.45);
 }
 
+/* ── Base body ──────────────────────────────────────────────────────────── */
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
-  line-height: 1.4;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1, 'liga' 1;
 }
 
 a {
@@ -75,8 +143,52 @@ button {
   font: inherit;
 }
 
+/* ── Focus visible ──────────────────────────────────────────────────────── */
 :focus-visible {
   outline: none;
   box-shadow: var(--shadow-focus);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
+}
+
+/* ── Custom scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ── Text selection ─────────────────────────────────────────────────────── */
+::selection {
+  background: var(--accent-glow);
+  color: var(--text-primary);
+}
+
+/* ── Animation keyframes ────────────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: var(--shadow-accent); }
+  50%       { box-shadow: var(--shadow-accent), 0 0 0 6px var(--accent-glow); }
+}
+
+@keyframes progress-shine {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
 }

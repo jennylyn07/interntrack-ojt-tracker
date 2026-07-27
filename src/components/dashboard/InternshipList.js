@@ -26,10 +26,10 @@ const STATUS_LABEL = {
 };
 
 const STATUS_COLOR = {
-  ACTIVE: { bg: "rgba(52,199,89,0.12)", color: "#1a7a37" },
-  PENDING: { bg: "rgba(255,159,10,0.12)", color: "#8a5a00" },
-  COMPLETED: { bg: "rgba(76,115,111,0.12)", color: "#2f5754" },
-  CANCELLED: { bg: "rgba(142,142,147,0.12)", color: "#555" },
+  ACTIVE:    { color: "#1a7a37" },
+  PENDING:   { color: "#8a5a00" },
+  COMPLETED: { color: "#2f5754" },
+  CANCELLED: { color: "#666" },
 };
 
 function formatDate(d) {
@@ -92,17 +92,19 @@ function DeleteModal({ internship, onCancel, onDeleted }) {
   }
 
   return (
-    // Backdrop
+    // Backdrop with blur
     <div
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(0,0,0,0.45)",
+        background: "rgba(0,0,0,0.55)",
+        backdropFilter: "blur(6px)",
         display: "flex", alignItems: "center", justifyContent: "center",
         padding: "var(--space-3)",
+        animation: "fadeIn 0.2s ease",
       }}
     >
-      {/* Modal box — stop propagation so clicking inside doesn't close */}
+      {/* Modal box */}
       <div
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -110,28 +112,39 @@ function DeleteModal({ internship, onCancel, onDeleted }) {
         aria-labelledby="delete-modal-title"
         style={{
           background: "var(--surface)",
-          borderRadius: "var(--radius-lg)",
+          borderRadius: "var(--radius-xl)",
           padding: "var(--space-4)",
-          boxShadow: "0 24px 48px rgba(0,0,0,0.25)",
-          maxWidth: 440,
+          boxShadow: "var(--shadow-elevated)",
+          maxWidth: 460,
           width: "100%",
+          animation: "fadeSlideUp 0.25s ease",
         }}
       >
-        <h2 id="delete-modal-title" style={{
-          fontSize: "1.1rem", fontWeight: 700,
+        {/* Red accent strip at top */}
+        <div style={{
+          height: 4, borderRadius: "var(--radius-pill)",
+          background: "linear-gradient(90deg, #c0392b, #e74c3c)",
           marginBottom: "var(--space-2)",
+        }} />
+
+        <h2 id="delete-modal-title" style={{
+          fontSize: "1.1rem", fontWeight: 800,
+          letterSpacing: "-0.015em",
+          marginBottom: "var(--space-2)",
+          color: "var(--text-primary)",
         }}>
           Delete &ldquo;{internship.company}&rdquo;?
         </h2>
 
         {loading ? (
-          <p style={{ color: "var(--accent)", fontSize: "0.9rem", marginBottom: "var(--space-3)" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: "var(--space-3)" }}>
             Loading record counts…
           </p>
         ) : (
           <p style={{
-            fontSize: "0.95rem", lineHeight: 1.6,
+            fontSize: "0.9rem", lineHeight: 1.65,
             marginBottom: "var(--space-3)", color: "var(--text-primary)",
+            opacity: 0.8,
           }}>
             This will permanently delete this internship
             {counts.logs > 0 && (
@@ -149,20 +162,29 @@ function DeleteModal({ internship, onCancel, onDeleted }) {
 
         {error && (
           <p style={{
-            color: "#ff3b30", fontSize: "0.85rem",
+            color: "var(--danger)", fontSize: "0.85rem",
+            padding: "10px 14px",
+            background: "rgba(192,57,43,0.06)",
+            borderRadius: "var(--radius-md)",
+            boxShadow: "var(--shadow-soft-inner)",
             marginBottom: "var(--space-2)",
           }}>{error}</p>
         )}
 
-        <div style={{ display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" }}>
+        <div style={{ display: "flex", gap: "var(--space-1)", justifyContent: "flex-end" }}>
           <button
             onClick={onCancel}
             disabled={deleting}
             style={{
-              padding: "9px 20px", borderRadius: 999,
-              border: "1px solid var(--muted)",
-              background: "var(--surface)", color: "var(--text-primary)",
-              fontSize: "0.9rem", fontWeight: 500, cursor: "pointer",
+              padding: "10px 20px",
+              borderRadius: "var(--radius-pill)",
+              border: 0,
+              background: "var(--surface)",
+              boxShadow: "var(--shadow-soft-outer)",
+              color: "var(--text-muted)",
+              fontSize: "0.88rem", fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "inherit",
             }}
           >
             Cancel
@@ -171,12 +193,17 @@ function DeleteModal({ internship, onCancel, onDeleted }) {
             onClick={handleDeleteConfirm}
             disabled={deleting || loading}
             style={{
-              padding: "9px 20px", borderRadius: 999,
+              padding: "10px 20px",
+              borderRadius: "var(--radius-pill)",
               border: "none",
-              background: deleting ? "rgba(255,59,48,0.5)" : "#ff3b30",
+              background: "linear-gradient(135deg, #e74c3c, #c0392b)",
               color: "#fff",
-              fontSize: "0.9rem", fontWeight: 600,
+              fontSize: "0.88rem", fontWeight: 700,
+              letterSpacing: "0.01em",
               cursor: deleting ? "not-allowed" : "pointer",
+              opacity: deleting ? 0.6 : 1,
+              boxShadow: "4px 4px 14px rgba(192,57,43,0.35)",
+              fontFamily: "inherit",
             }}
           >
             {deleting ? "Deleting…" : "Delete permanently"}
@@ -239,13 +266,12 @@ export default function InternshipList({ initialInternships, showArchived }) {
     return (
       <div style={{
         background: "var(--surface)",
-        border: "1px solid var(--muted)",
-        borderRadius: "var(--radius-lg)",
+        borderRadius: "var(--radius-xl)",
         padding: "var(--space-4)",
         textAlign: "center",
-        boxShadow: "var(--shadow-soft-outer)",
+        boxShadow: "var(--shadow-elevated)",
       }}>
-        <p style={{ color: "var(--accent)", fontSize: "0.95rem" }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
           {showArchived
             ? "No archived internships."
             : "No internships yet. Use the button above to get started."}
@@ -272,20 +298,30 @@ export default function InternshipList({ initialInternships, showArchived }) {
           const pct = internship.requiredHours > 0
             ? Math.min(100, Math.round((internship.completedHours / internship.requiredHours) * 100))
             : 0;
-          const { bg, color } = STATUS_COLOR[internship.status] ?? STATUS_COLOR.CANCELLED;
+          const { color } = STATUS_COLOR[internship.status] ?? STATUS_COLOR.CANCELLED;
 
           return (
             <div
               key={internship.id}
               style={{
                 background: "var(--surface)",
-                border: "1px solid var(--muted)",
-                borderRadius: "var(--radius-lg)",
-                padding: "var(--space-3)",
-                boxShadow: "var(--shadow-soft-outer)",
-                opacity: showArchived ? 0.7 : (isEditable ? 1 : 0.8),
+                borderRadius: "var(--radius-xl)",
+                padding: "var(--space-3) var(--space-4)",
+                boxShadow: "var(--shadow-elevated)",
+                opacity: showArchived ? 0.72 : 1,
+                position: "relative",
+                overflow: "hidden",
+                transition: "transform 200ms, box-shadow 260ms",
               }}
             >
+              {/* Left accent bar */}
+              <div style={{
+                position: "absolute", left: 0, top: "15%", bottom: "15%",
+                width: 4,
+                borderRadius: "0 4px 4px 0",
+                background: `linear-gradient(180deg, ${color ?? "var(--accent)"}, color-mix(in srgb, ${color ?? "var(--accent)"} 40%, transparent))`,
+              }} />
+
               {/* Card header */}
               <div style={{
                 display: "flex", alignItems: "flex-start",
@@ -294,78 +330,109 @@ export default function InternshipList({ initialInternships, showArchived }) {
                 marginBottom: "var(--space-2)",
               }}>
                 <div>
-                  <h2 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: 4 }}>
+                  <h2 style={{
+                    fontSize: "1.1rem", fontWeight: 800,
+                    letterSpacing: "-0.015em",
+                    color: "var(--text-primary)",
+                    marginBottom: 4,
+                    display: "flex", alignItems: "center", gap: 8,
+                  }}>
                     {internship.company}
                     {showArchived && (
                       <span style={{
-                        marginLeft: 10, fontSize: "0.75rem", fontWeight: 600,
-                        color: "#888", background: "var(--muted)",
-                        padding: "2px 8px", borderRadius: 999,
-                        verticalAlign: "middle",
+                        fontSize: "0.7rem", fontWeight: 700,
+                        color: "var(--text-muted)",
+                        background: "var(--surface)",
+                        padding: "2px 9px",
+                        borderRadius: "var(--radius-pill)",
+                        boxShadow: "var(--shadow-soft-inner)",
+                        letterSpacing: "0.05em",
+                        textTransform: "uppercase",
                       }}>Archived</span>
                     )}
                   </h2>
-                  <p style={{ fontSize: "0.85rem", color: "var(--accent)" }}>
+                  <p style={{ fontSize: "0.83rem", color: "var(--text-muted)", fontWeight: 500 }}>
                     Supervisor: {internship.supervisor}
                   </p>
-                  <p style={{ fontSize: "0.85rem", color: "var(--accent)", marginTop: 2 }}>
+                  <p style={{ fontSize: "0.83rem", color: "var(--text-muted)", marginTop: 2 }}>
                     {formatDate(internship.startDate)}
                     {internship.endDate ? ` → ${formatDate(internship.endDate)}` : " → present"}
                   </p>
                 </div>
                 <span style={{
-                  padding: "4px 12px", borderRadius: 999,
-                  fontSize: "0.8rem", fontWeight: 600,
-                  background: bg, color, whiteSpace: "nowrap",
+                  padding: "4px 12px",
+                  borderRadius: "var(--radius-pill)",
+                  fontSize: "0.75rem", fontWeight: 700,
+                  color,
+                  background: "var(--surface)",
+                  boxShadow: "var(--shadow-soft-inner)",
+                  whiteSpace: "nowrap",
+                  letterSpacing: "0.03em",
+                  textTransform: "uppercase",
                 }}>
                   {STATUS_LABEL[internship.status]}
                 </span>
               </div>
 
-              {/* Progress bar */}
+              {/* Progress bar — gradient style matching ProgressCard */}
               <div style={{ marginBottom: "var(--space-2)" }}>
                 <div style={{
                   display: "flex", justifyContent: "space-between",
-                  fontSize: "0.85rem", marginBottom: 6,
+                  fontSize: "0.78rem", marginBottom: 7,
                 }}>
-                  <span style={{ color: "var(--accent)" }}>
-                    {internship.completedHours}h completed of {internship.requiredHours}h required
+                  <span style={{ color: "var(--text-muted)", fontWeight: 500 }}>
+                    {internship.completedHours}h of {internship.requiredHours}h
                   </span>
-                  <span style={{ fontWeight: 600 }}>{pct}%</span>
+                  <span style={{
+                    fontWeight: 800, fontSize: "0.85rem",
+                    color: "var(--accent)",
+                    letterSpacing: "-0.02em",
+                  }}>{pct}%</span>
                 </div>
                 <div style={{
-                  height: 8, borderRadius: 999,
-                  background: "var(--muted)", overflow: "hidden",
+                  height: 8,
+                  borderRadius: "var(--radius-pill)",
+                  background: "var(--surface)",
+                  boxShadow: "var(--shadow-soft-inner)",
+                  overflow: "hidden",
                 }}>
                   <div style={{
                     height: "100%", width: `${pct}%`,
-                    background: "var(--accent)", borderRadius: 999,
-                    transition: "width 0.4s ease",
+                    background: "linear-gradient(90deg, var(--accent-light), var(--accent))",
+                    borderRadius: "var(--radius-pill)",
+                    transition: "width 0.5s ease",
+                    boxShadow: "var(--shadow-accent)",
                   }} />
                 </div>
               </div>
 
-              {/* Action row:
-                  LEFT group  — Edit (active only) + Archive/Unarchive
-                  RIGHT group — Delete (separated by flex gap + margin)
-                  The physical gap between left and right discourages
-                  accidental clicks on Delete. */}
+              {/* Action row */}
               <div style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "var(--space-2)",
+                gap: "var(--space-1)",
                 flexWrap: "wrap",
+                paddingTop: "var(--space-1)",
+                borderTop: "1px solid",
+                borderColor: "var(--muted)",
               }}>
                 {/* LEFT: Edit + Archive */}
-                <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {isEditable && (
                     <Link
                       href={`/dashboard/internships/${internship.id}/edit`}
                       style={{
-                        padding: "7px 18px", borderRadius: 999,
-                        border: "1px solid var(--accent)",
-                        color: "var(--accent)", fontSize: "0.85rem",
-                        fontWeight: 600, display: "inline-block",
+                        padding: "8px 18px",
+                        borderRadius: "var(--radius-pill)",
+                        border: 0,
+                        background: "var(--surface)",
+                        boxShadow: "var(--shadow-soft-outer)",
+                        color: "var(--accent)",
+                        fontSize: "0.82rem",
+                        fontWeight: 700,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        letterSpacing: "0.01em",
                       }}
                     >
                       Edit
@@ -376,32 +443,42 @@ export default function InternshipList({ initialInternships, showArchived }) {
                     onClick={() => toggleArchive(internship)}
                     disabled={isPending}
                     style={{
-                      padding: "7px 18px", borderRadius: 999,
-                      border: "1px solid var(--muted)",
-                      background: "transparent",
-                      color: "var(--accent)", fontSize: "0.85rem",
-                      fontWeight: 500, cursor: isPending ? "not-allowed" : "pointer",
+                      padding: "8px 18px",
+                      borderRadius: "var(--radius-pill)",
+                      border: 0,
+                      background: "var(--surface)",
+                      boxShadow: "var(--shadow-soft-outer)",
+                      color: "var(--text-muted)",
+                      fontSize: "0.82rem",
+                      fontWeight: 600,
+                      cursor: isPending ? "not-allowed" : "pointer",
                       opacity: isPending ? 0.5 : 1,
+                      fontFamily: "inherit",
                     }}
                   >
                     {isPending ? "…" : showArchived ? "Unarchive" : "Archive"}
                   </button>
                 </div>
 
-                {/* Spacer — pushes Delete to the far right */}
+                {/* Spacer */}
                 <div style={{ flex: 1 }} />
 
-                {/* RIGHT: Delete — visually separated */}
+                {/* RIGHT: Delete */}
                 <button
                   onClick={() => setDeleteTarget(internship)}
                   disabled={isPending}
                   style={{
-                    padding: "7px 18px", borderRadius: 999,
-                    border: "1px solid rgba(255,59,48,0.3)",
-                    background: "transparent",
-                    color: "#ff3b30", fontSize: "0.85rem",
-                    fontWeight: 500, cursor: isPending ? "not-allowed" : "pointer",
+                    padding: "8px 18px",
+                    borderRadius: "var(--radius-pill)",
+                    border: 0,
+                    background: "var(--surface)",
+                    boxShadow: "var(--shadow-soft-outer)",
+                    color: "var(--danger)",
+                    fontSize: "0.82rem",
+                    fontWeight: 600,
+                    cursor: isPending ? "not-allowed" : "pointer",
                     opacity: isPending ? 0.5 : 1,
+                    fontFamily: "inherit",
                   }}
                 >
                   Delete

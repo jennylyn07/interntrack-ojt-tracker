@@ -155,11 +155,13 @@ export default function ChecklistCard({ items, internshipId }) {
             position: "fixed",
             inset: 0,
             zIndex: 1000,
-            background: "rgba(0,0,0,0.45)",
+            background: "rgba(0,0,0,0.55)",
+            backdropFilter: "blur(4px)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             padding: "var(--space-3)",
+            animation: "fadeIn 0.2s ease",
           }}
         >
           <div
@@ -168,11 +170,12 @@ export default function ChecklistCard({ items, internshipId }) {
             aria-modal="true"
             style={{
               background: "var(--surface)",
-              borderRadius: "var(--radius-lg)",
+              borderRadius: "var(--radius-xl)",
               padding: "var(--space-4)",
-              boxShadow: "0 24px 48px rgba(0,0,0,0.25)",
-              maxWidth: 400,
+              boxShadow: "var(--shadow-elevated)",
+              maxWidth: 420,
               width: "100%",
+              animation: "fadeSlideUp 0.25s ease",
             }}
           >
             <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "var(--space-2)" }}>
@@ -220,12 +223,13 @@ export default function ChecklistCard({ items, internshipId }) {
       )}
 
       <div className={styles.header}>
-        <div>
+        <div className={styles.titleGroup}>
           <h2 className={styles.title}>Checklist</h2>
-          <p className={styles.subtitle}>
-            {completedCount}/{localItems.length} completed
-          </p>
+          <p className={styles.subtitle}>Track your requirements</p>
         </div>
+        <span className={styles.badge}>
+          {completedCount}/{localItems.length}
+        </span>
       </div>
 
       {localItems.length === 0 ? (
@@ -244,7 +248,9 @@ export default function ChecklistCard({ items, internshipId }) {
                   className={item.completed ? styles.checkOn : styles.checkOff}
                   aria-hidden="true"
                 />
-                <span className={styles.label}>{item.label}</span>
+                <span className={item.completed ? `${styles.label} ${styles.labelDone}` : styles.label}>
+                  {item.label}
+                </span>
               </button>
 
               {/* Delete button — only show for real items (not temp IDs) */}

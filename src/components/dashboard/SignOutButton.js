@@ -1,8 +1,5 @@
 // File: src/components/dashboard/SignOutButton.js
 // Purpose: Interactive sign-out button (Client Component).
-//
-// Using a separate client component allows the DashboardHeader itself
-// to remain a clean, server-side rendered component.
 
 "use client";
 
@@ -35,26 +32,31 @@ export default function SignOutButton() {
     <button
       onClick={handleSignOut}
       disabled={loading}
-      style={buttonStyle}
+      style={loading ? { ...buttonStyle, opacity: 0.55, cursor: "not-allowed" } : buttonStyle}
       aria-label="Sign Out"
     >
-      {loading ? "Signing out..." : "Sign Out"}
+      {loading ? "Signing out…" : "Sign Out"}
     </button>
   );
 }
 
 const buttonStyle = {
-  padding: "8px 14px",
-  fontSize: "0.85rem",
-  fontWeight: "600",
-  borderRadius: "20px",
-  border: "1px solid var(--border-color, #e5e5ea)",
-  backgroundColor: "var(--card-bg, #ffffff)",
-  color: "var(--foreground, #1c1c1e)",
+  padding: "10px 18px",
+  fontSize: "0.82rem",
+  fontWeight: 700,
+  letterSpacing: "0.02em",
+  borderRadius: "var(--radius-lg)",
+  border: 0,
+  backgroundColor: "var(--surface)",
+  color: "var(--accent)",
   cursor: "pointer",
-  transition: "all 0.15s ease",
+  transition: "transform 150ms, box-shadow 260ms",
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
   boxSizing: "border-box",
+  boxShadow: "var(--shadow-soft-outer)",
+  fontFamily: "inherit",
+  minHeight: 44,
 };
+

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function NewLogPage() {
   const router = useRouter();
@@ -70,9 +71,8 @@ export default function NewLogPage() {
         return;
       }
 
-      // Success — go back to dashboard
       router.push("/dashboard");
-      router.refresh(); // refresh server data
+      router.refresh();
 
     } catch (err) {
       setError("Network error. Please try again.");
@@ -83,127 +83,247 @@ export default function NewLogPage() {
 
   if (loadingInternship) {
     return (
-      <div style={{ maxWidth: 480, margin: "100px auto", textAlign: "center", fontFamily: "sans-serif" }}>
-        <p style={{ color: "#666" }}>Loading internship details...</p>
+      <div style={shellStyle}>
+        <div style={cardStyle}>
+          <div style={{ textAlign: "center", padding: "var(--space-4)" }}>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Loading internship details…</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: 480, margin: "40px auto", padding: "0 20px" }}>
-      <h1 style={{ marginBottom: 24, fontSize: "1.4rem", fontWeight: 650 }}>
-        Add Daily Log
-      </h1>
+    <div style={shellStyle}>
+      {/* Back navigation */}
+      <Link href="/dashboard" style={backLinkStyle}>
+        ← Back to Dashboard
+      </Link>
 
-      <form onSubmit={handleSubmit}>
-
-        {/* Date */}
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: "block", marginBottom: 6, fontWeight: 500 }}>
-            Date
-          </label>
-          <input
-            type="date"
-            name="date"
-            value={form.date}
-            onChange={handleChange}
-            required
-            style={inputStyle}
-          />
+      <div style={cardStyle}>
+        {/* Card header with accent bar */}
+        <div style={cardHeaderStyle}>
+          <div style={accentBarStyle} />
+          <div>
+            <h1 style={pageTitleStyle}>Add Daily Log</h1>
+            <p style={pageSubtitleStyle}>Record your hours and describe what you accomplished.</p>
+          </div>
         </div>
 
-        {/* Hours */}
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: "block", marginBottom: 6, fontWeight: 500 }}>
-            Hours worked
-          </label>
-          <input
-            type="number"
-            name="hours"
-            value={form.hours}
-            onChange={handleChange}
-            min="0.5"
-            max="24"
-            step="0.5"
-            placeholder="e.g. 8"
-            required
-            style={inputStyle}
-          />
-        </div>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
 
-        {/* Description */}
-        <div style={{ marginBottom: 24 }}>
-          <label style={{ display: "block", marginBottom: 6, fontWeight: 500 }}>
-            What did you do today?
-          </label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            rows={4}
-            placeholder="Describe your tasks, learnings, and accomplishments..."
-            required
-            style={{ ...inputStyle, resize: "vertical" }}
-          />
-        </div>
+          {/* Date */}
+          <div style={fieldStyle}>
+            <label style={labelStyle} htmlFor="log-date">Date</label>
+            <input
+              id="log-date"
+              type="date"
+              name="date"
+              value={form.date}
+              onChange={handleChange}
+              required
+              style={inputStyle}
+            />
+          </div>
 
-        {/* Error message */}
-        {error && (
-          <p style={{ color: "red", marginBottom: 16, fontSize: "0.9rem" }}>
-            {error}
-          </p>
-        )}
+          {/* Hours */}
+          <div style={fieldStyle}>
+            <label style={labelStyle} htmlFor="log-hours">Hours Worked</label>
+            <input
+              id="log-hours"
+              type="number"
+              name="hours"
+              value={form.hours}
+              onChange={handleChange}
+              min="0.5"
+              max="24"
+              step="0.5"
+              placeholder="e.g. 8"
+              required
+              style={inputStyle}
+            />
+          </div>
 
-        {/* Buttons */}
-        <div style={{ display: "flex", gap: 12 }}>
-          <button
-            type="button"
-            onClick={() => router.back()}
-            style={secondaryButtonStyle}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            style={primaryButtonStyle}
-          >
-            {loading ? "Saving..." : "Save Log"}
-          </button>
-        </div>
+          {/* Description */}
+          <div style={fieldStyle}>
+            <label style={labelStyle} htmlFor="log-description">What did you do today?</label>
+            <textarea
+              id="log-description"
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              rows={5}
+              placeholder="Describe your tasks, learnings, and accomplishments…"
+              required
+              style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }}
+            />
+          </div>
 
-      </form>
+          {/* Error message */}
+          {error && (
+            <div style={errorStyle}>
+              {error}
+            </div>
+          )}
+
+          {/* Buttons */}
+          <div style={{ display: "flex", gap: "var(--space-2)", marginTop: "var(--space-1)" }}>
+            <button
+              type="button"
+              onClick={() => router.back()}
+              style={cancelBtnStyle}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              style={loading ? { ...primaryBtnStyle, opacity: 0.6, cursor: "not-allowed" } : primaryBtnStyle}
+            >
+              {loading ? "Saving…" : "Save Log"}
+            </button>
+          </div>
+
+        </form>
+      </div>
     </div>
   );
 }
 
+/* ── Inline style objects (use CSS vars from design system) ───────────────── */
+
+const shellStyle = {
+  maxWidth: 520,
+  margin: "0 auto",
+  padding: "var(--space-4) var(--space-3)",
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--space-2)",
+  animation: "fadeSlideUp 0.35s ease both",
+};
+
+const backLinkStyle = {
+  fontSize: "0.83rem",
+  fontWeight: 600,
+  color: "var(--accent)",
+  letterSpacing: "0.02em",
+  textDecoration: "none",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 4,
+  transition: "opacity 150ms",
+};
+
+const cardStyle = {
+  background: "var(--surface)",
+  borderRadius: "var(--radius-xl)",
+  padding: "var(--space-4)",
+  boxShadow: "var(--shadow-elevated)",
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--space-3)",
+};
+
+const cardHeaderStyle = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "var(--space-2)",
+};
+
+const accentBarStyle = {
+  width: 4,
+  alignSelf: "stretch",
+  minHeight: 40,
+  borderRadius: "0 4px 4px 0",
+  background: "linear-gradient(180deg, var(--accent-light), var(--accent))",
+  flexShrink: 0,
+};
+
+const pageTitleStyle = {
+  fontSize: "1.3rem",
+  fontWeight: 800,
+  letterSpacing: "-0.02em",
+  color: "var(--text-primary)",
+  margin: 0,
+};
+
+const pageSubtitleStyle = {
+  marginTop: 4,
+  fontSize: "0.85rem",
+  color: "var(--text-muted)",
+  fontWeight: 400,
+};
+
+const fieldStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+};
+
+const labelStyle = {
+  fontSize: "0.78rem",
+  fontWeight: 700,
+  letterSpacing: "0.04em",
+  textTransform: "uppercase",
+  color: "var(--text-primary)",
+};
+
 const inputStyle = {
   width: "100%",
-  padding: "10px 12px",
-  borderRadius: 8,
-  border: "1px solid #ddd",
-  fontSize: "1rem",
-  boxSizing: "border-box",
-};
-
-const primaryButtonStyle = {
-  flex: 1,
-  padding: "12px 24px",
-  borderRadius: 999,
-  border: 0,
-  background: "#1a1a1a",
-  color: "#fff",
-  fontSize: "1rem",
+  padding: "13px 16px",
+  borderRadius: "var(--radius-md)",
+  border: "none",
+  background: "var(--surface)",
+  color: "var(--text-primary)",
+  fontSize: "0.95rem",
+  fontFamily: "inherit",
   fontWeight: 500,
-  cursor: "pointer",
+  boxShadow: "var(--shadow-deep-inner)",
+  outline: "none",
+  boxSizing: "border-box",
+  transition: "box-shadow 150ms",
 };
 
-const secondaryButtonStyle = {
-  flex: 1,
-  padding: "12px 24px",
-  borderRadius: 999,
-  border: "1px solid #ddd",
-  background: "#fff",
-  fontSize: "1rem",
-  cursor: "pointer",
+const errorStyle = {
+  padding: "12px 16px",
+  fontSize: "0.85rem",
+  fontWeight: 500,
+  color: "var(--danger)",
+  background: "rgba(192, 57, 43, 0.06)",
+  borderRadius: "var(--radius-md)",
+  boxShadow: "var(--shadow-soft-inner)",
+  lineHeight: 1.5,
 };
+
+const cancelBtnStyle = {
+  flex: 1,
+  padding: "13px 24px",
+  borderRadius: "var(--radius-pill)",
+  border: 0,
+  background: "var(--surface)",
+  color: "var(--text-muted)",
+  fontSize: "0.92rem",
+  fontWeight: 600,
+  cursor: "pointer",
+  boxShadow: "var(--shadow-soft-outer)",
+  fontFamily: "inherit",
+  transition: "transform 150ms, box-shadow 260ms",
+};
+
+const primaryBtnStyle = {
+  flex: 2,
+  padding: "13px 24px",
+  borderRadius: "var(--radius-pill)",
+  border: 0,
+  background: "linear-gradient(135deg, var(--accent-light), var(--accent))",
+  color: "#fff",
+  fontSize: "0.95rem",
+  fontWeight: 700,
+  cursor: "pointer",
+  letterSpacing: "0.02em",
+  fontFamily: "inherit",
+  boxShadow: "var(--shadow-accent)",
+  transition: "transform 150ms, box-shadow 260ms, opacity 150ms",
+};
+
+

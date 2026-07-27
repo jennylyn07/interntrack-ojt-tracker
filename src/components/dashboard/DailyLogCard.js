@@ -1,14 +1,9 @@
 // File: src/components/dashboard/DailyLogCard.js
 // Purpose: Show a quick preview of today's latest log and provide a clear CTA.
-//
-// Phase 6: Wired up "Add New Log" button to real route.
 
 import Link from "next/link";
 import styles from "./DailyLogCard.module.css";
 
-// Component: DailyLogCard
-// Props:
-// - todayLog: { date: string, hoursToday: number, summary: string, hasLog: boolean }
 export default function DailyLogCard({ todayLog }) {
   const hasLog = Boolean(todayLog?.hasLog);
 
@@ -16,14 +11,19 @@ export default function DailyLogCard({ todayLog }) {
     <section className={styles.card} aria-label="Daily log">
       <div className={styles.header}>
         <h2 className={styles.title}>Daily Log</h2>
-        <p className={styles.date}>{todayLog?.date ?? ""}</p>
+        <span className={styles.dateBadge}>{todayLog?.date ?? ""}</span>
       </div>
 
       <div className={styles.body}>
         <div className={styles.hoursRow}>
-          <p className={styles.hoursLabel}>Today's hours</p>
-          <p className={styles.hoursValue}>{todayLog?.hoursToday ?? 0}</p>
+          <p className={styles.hoursLabel}>Today&apos;s hours</p>
+          <p className={styles.hoursValue}>
+            {todayLog?.hoursToday ?? 0}
+            <span className={styles.hoursUnit}>h</span>
+          </p>
         </div>
+
+        <div className={styles.divider} aria-hidden="true" />
 
         <p className={styles.previewLabel}>Journal preview</p>
         <p className={styles.previewText}>
@@ -33,7 +33,6 @@ export default function DailyLogCard({ todayLog }) {
         </p>
       </div>
 
-      {/* Phase 6: Wired to real route */}
       <Link href="/dashboard/logs/new" className={styles.cta}>
         Add New Log
       </Link>

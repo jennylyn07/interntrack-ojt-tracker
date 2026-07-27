@@ -1,12 +1,5 @@
 // File: src/app/dashboard/internships/page.js
 // Purpose: List all of the user's internships (active + past history).
-//
-// Architecture note:
-// - Server Component: data fetch stays server-side for speed + security.
-// - Interactive actions (archive, delete) are handled by the InternshipList
-//   client component, which receives the pre-fetched list as a prop.
-// - "Show archived" toggle uses a ?showArchived=1 URL param so the server
-//   controls the data filter — consistent with the InternshipSwitcher pattern.
 
 import { getUserInternships } from "@/lib/dashboard-data";
 import { auth } from "@/lib/auth";
@@ -27,24 +20,55 @@ export default async function InternshipsPage({ searchParams }) {
   const internships = await getUserInternships(session.user.id, showArchived);
 
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto" }}>
-      {/* Page header */}
+    <div style={{ maxWidth: 720, margin: "0 auto", animation: "fadeSlideUp 0.35s ease both" }}>
+      {/* Page header card */}
       <div style={{
+        background: "var(--surface)",
+        borderRadius: "var(--radius-xl)",
+        padding: "var(--space-3) var(--space-4)",
+        boxShadow: "var(--shadow-elevated)",
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "space-between",
-        marginBottom: "var(--space-4)",
         flexWrap: "wrap",
         gap: "var(--space-2)",
+        marginBottom: "var(--space-3)",
+        position: "relative",
+        overflow: "hidden",
       }}>
+        {/* Accent bar */}
+        <div style={{
+          position: "absolute",
+          left: 0,
+          top: "20%",
+          bottom: "20%",
+          width: 4,
+          borderRadius: "0 4px 4px 0",
+          background: "linear-gradient(180deg, var(--accent-light), var(--accent))",
+        }} />
+
         <div>
-          <Link href="/dashboard" style={{ fontSize: "0.85rem", color: "var(--accent)", fontWeight: 500 }}>
+          <Link href="/dashboard" style={{
+            fontSize: "0.8rem",
+            fontWeight: 600,
+            color: "var(--accent)",
+            letterSpacing: "0.02em",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+          }}>
             ← Dashboard
           </Link>
-          <h1 style={{ fontSize: "1.6rem", fontWeight: 700, marginTop: 6 }}>
+          <h1 style={{
+            fontSize: "1.5rem",
+            fontWeight: 800,
+            letterSpacing: "-0.025em",
+            color: "var(--text-primary)",
+            marginTop: 6,
+          }}>
             {showArchived ? "Archived Internships" : "My Internships"}
           </h1>
-          <p style={{ color: "var(--accent)", fontSize: "0.9rem", marginTop: 2 }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 3 }}>
             {internships.length === 0
               ? showArchived ? "No archived internships." : "No internships yet. Add your first one below."
               : `${internships.length} internship${internships.length === 1 ? "" : "s"}${showArchived ? " archived" : " on record"}.`}
@@ -54,16 +78,20 @@ export default async function InternshipsPage({ searchParams }) {
           <Link
             href={showArchived ? "/dashboard/internships" : "/dashboard/internships?showArchived=1"}
             style={{
-              display: "inline-block",
-              marginTop: 8,
-              fontSize: "0.82rem",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              marginTop: 10,
+              fontSize: "0.8rem",
               color: "var(--accent)",
-              fontWeight: 500,
-              textDecoration: "underline",
-              textUnderlineOffset: 3,
+              fontWeight: 600,
+              padding: "4px 12px",
+              borderRadius: "var(--radius-pill)",
+              background: "var(--surface)",
+              boxShadow: "var(--shadow-soft-inner)",
             }}
           >
-            {showArchived ? "← Show active internships" : "Show archived internships"}
+            {showArchived ? "← Show active" : "Show archived"}
           </Link>
         </div>
 
@@ -72,14 +100,18 @@ export default async function InternshipsPage({ searchParams }) {
           <Link
             href="/dashboard/internships/new"
             style={{
-              padding: "10px 22px",
-              borderRadius: 999,
-              background: "var(--accent)",
-              color: "var(--surface)",
-              fontWeight: 600,
+              padding: "12px 22px",
+              borderRadius: "var(--radius-pill)",
+              background: "linear-gradient(135deg, var(--accent-light), var(--accent))",
+              color: "#fff",
+              fontWeight: 700,
               fontSize: "0.9rem",
-              display: "inline-block",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
               whiteSpace: "nowrap",
+              boxShadow: "var(--shadow-accent)",
+              letterSpacing: "0.01em",
             }}
           >
             + Add Internship
@@ -87,9 +119,7 @@ export default async function InternshipsPage({ searchParams }) {
         )}
       </div>
 
-      {/* Interactive card list — client component.
-          key forces a full remount when switching between active/archived
-          views, preventing stale local state from leaking across navigations. */}
+      {/* Interactive card list — client component. */}
       <InternshipList
         key={showArchived ? "archived" : "active"}
         initialInternships={internships}
@@ -98,3 +128,5 @@ export default async function InternshipsPage({ searchParams }) {
     </div>
   );
 }
+
+

@@ -1,6 +1,5 @@
 /* File: src/app/register/page.module.css
-   Purpose: Register page styles — uses the app's design system tokens.
-   Shares the same visual language as login/page.module.css.
+   Purpose: Deep neomorphism register page — same visual language as login.
 */
 
 /* ── Page shell ─────────────────────────────────────────────────────────── */
@@ -11,19 +10,56 @@
   justify-content: center;
   background-color: var(--bg-primary);
   padding: var(--space-3);
+  background-image:
+    radial-gradient(ellipse 70% 60% at 50% 0%, var(--accent-glow), transparent),
+    radial-gradient(ellipse 50% 40% at 0% 100%, rgba(61, 112, 104, 0.06), transparent);
 }
 
 /* ── Card ───────────────────────────────────────────────────────────────── */
 .card {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  box-shadow: var(--shadow-soft-outer);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-4);
+  box-shadow: var(--shadow-elevated);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  animation: fadeSlideUp 0.4s ease both;
+}
+
+/* ── Logo mark ───────────────────────────────────────────────────────────── */
+.logoMark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.logoCircle {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  position: relative;
+}
+
+.logoCircle::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: var(--radius-pill);
+  border: 2.5px solid transparent;
+  background: linear-gradient(135deg, var(--accent-light), var(--accent)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
@@ -36,51 +72,53 @@
 }
 
 .wordmark {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   color: var(--accent);
+  opacity: 0.8;
 }
 
 .title {
-  font-size: 1.65rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 800;
   color: var(--text-primary);
-  letter-spacing: -0.02em;
-  margin-top: 2px;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
 }
 
 .subtitle {
   font-size: 0.88rem;
-  color: var(--accent);
-  opacity: 0.8;
+  color: var(--text-muted);
   line-height: 1.5;
+  font-weight: 400;
 }
 
 /* ── Verification pending state ─────────────────────────────────────────── */
 .inboxIcon {
-  font-size: 2.4rem;
+  font-size: 2.6rem;
   line-height: 1;
-  margin: 4px 0;
+  margin: 6px 0;
+  text-align: center;
 }
 
 .emailHighlight {
-  color: var(--text-primary);
-  font-weight: 600;
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .infoBox {
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
-  border: 1.5px solid color-mix(in srgb, var(--accent) 20%, transparent);
-  border-radius: var(--radius-md);
-  padding: 14px var(--space-2);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-3);
 }
 
 .infoText {
   margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.6;
+  font-size: 0.88rem;
+  line-height: 1.65;
   color: var(--text-primary);
   opacity: 0.8;
 }
@@ -92,20 +130,29 @@
   justify-content: center;
   gap: 10px;
   width: 100%;
-  padding: 11px 16px;
+  padding: 13px 16px;
   font-size: 0.92rem;
   font-weight: 600;
   color: var(--text-primary);
-  background: var(--bg-primary);
-  border: 1.5px solid var(--muted);
-  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: none;
+  border-radius: var(--radius-lg);
   cursor: pointer;
   box-shadow: var(--shadow-soft-outer);
-  transition: box-shadow var(--transition-fast), opacity var(--transition-fast);
+  transition:
+    box-shadow var(--transition-med),
+    transform var(--transition-fast);
+  letter-spacing: 0.005em;
 }
 
 .googleBtn:hover:not(:disabled) {
-  box-shadow: var(--shadow-soft-inner);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+}
+
+.googleBtn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-pressed);
 }
 
 .googleBtn:disabled {
@@ -124,14 +171,16 @@
   flex: 1;
   height: 1px;
   background: var(--muted);
+  border-radius: var(--radius-pill);
 }
 
 .dividerLabel {
-  font-size: 0.75rem;
-  color: var(--accent);
-  opacity: 0.7;
+  font-size: 0.73rem;
+  color: var(--text-muted);
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 /* ── Form ───────────────────────────────────────────────────────────────── */
@@ -144,31 +193,38 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .label {
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   color: var(--text-primary);
-  opacity: 0.75;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 .input {
-  padding: 11px 14px;
+  padding: 13px 16px;
   font-size: 0.95rem;
+  font-family: inherit;
   border-radius: var(--radius-md);
-  border: 1.5px solid var(--muted);
-  background: var(--bg-primary);
+  border: none;
+  background: var(--surface);
   color: var(--text-primary);
-  box-shadow: var(--shadow-soft-inner);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: var(--shadow-deep-inner);
+  transition: box-shadow var(--transition-fast);
   width: 100%;
+  font-weight: 500;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--accent);
   box-shadow: var(--shadow-focus);
 }
 
@@ -179,39 +235,49 @@
 
 /* ── Error ──────────────────────────────────────────────────────────────── */
 .error {
-  padding: 10px 14px;
-  font-size: 0.83rem;
+  padding: 12px 16px;
+  font-size: 0.85rem;
   font-weight: 500;
-  color: #c0392b;
-  background: rgba(192, 57, 43, 0.07);
-  border: 1.5px solid rgba(192, 57, 43, 0.18);
+  color: var(--danger);
+  background: rgba(192, 57, 43, 0.06);
   border-radius: var(--radius-md);
-  line-height: 1.4;
+  box-shadow: var(--shadow-soft-inner);
+  line-height: 1.5;
 }
 
 /* ── Submit button ──────────────────────────────────────────────────────── */
 .submitBtn {
   width: 100%;
-  padding: 13px;
+  padding: 14px;
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--surface);
-  background: var(--accent);
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  box-shadow: var(--shadow-soft-outer);
-  transition: opacity var(--transition-fast), box-shadow var(--transition-fast);
-  letter-spacing: 0.01em;
+  box-shadow: var(--shadow-accent);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-med);
   margin-top: 4px;
 }
 
 .submitBtn:hover:not(:disabled) {
-  opacity: 0.88;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+  opacity: 0.93;
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-pressed);
 }
 
 .submitBtn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -220,16 +286,17 @@
 .footer {
   font-size: 0.85rem;
   text-align: center;
-  color: var(--text-primary);
-  opacity: 0.6;
+  color: var(--text-muted);
 }
 
 .link {
   color: var(--accent);
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
+  transition: opacity var(--transition-fast);
 }
 
 .link:hover {
+  opacity: 0.75;
   text-decoration: underline;
 }

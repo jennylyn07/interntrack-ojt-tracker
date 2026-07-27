@@ -1,63 +1,118 @@
 /* File: src/components/dashboard/ActivityTimeline.module.css
-   Purpose: Styles for timeline list.
-   Layout:
-   - Mobile-first list with subtle dividers.
-   - Easy vertical scanning.
+   Purpose: Deep neomorphism activity timeline with vertical connector.
 */
 
 .card {
-  padding: var(--space-3);
-  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-xl);
   background: var(--surface);
-  box-shadow: var(--shadow-soft-outer);
+  box-shadow: var(--shadow-elevated);
+  animation: fadeSlideUp 0.4s ease 0.25s both;
 }
 
 .header {
   display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.titleGroup {
+  display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .title {
   font-size: 1.05rem;
-  font-weight: 650;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
 }
 
 .subtitle {
-  font-size: 0.95rem;
-  color: rgba(0, 13, 12, 0.7);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
-:root[data-theme="dark"] .subtitle {
-  color: rgba(242, 242, 240, 0.75);
+/* Empty state */
+.empty {
+  padding: var(--space-3) 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  text-align: center;
 }
 
+/* Timeline list with vertical connector line */
 .list {
-  margin-top: var(--space-2);
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 10px;
+  position: relative;
+  padding-left: 30px;
+}
+
+/* The vertical connecting track */
+.list::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(
+    180deg,
+    var(--accent),
+    color-mix(in srgb, var(--accent) 20%, transparent)
+  );
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .item {
+  position: relative;
   display: grid;
-  grid-template-columns: 90px 1fr;
+  grid-template-columns: 80px 1fr;
   gap: var(--space-2);
-  padding: var(--space-2);
-
+  padding: var(--space-2) var(--space-2);
   border-radius: var(--radius-md);
   background: var(--surface);
   box-shadow: var(--shadow-soft-inner);
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
-.date {
-  font-size: 0.9rem;
-  color: rgba(0, 13, 12, 0.65);
+.item:hover {
+  transform: translateX(2px);
+  box-shadow: var(--shadow-deep-inner);
 }
 
-:root[data-theme="dark"] .date {
-  color: rgba(242, 242, 240, 0.7);
+/* Timeline dot */
+.item::before {
+  content: '';
+  position: absolute;
+  left: -25px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow:
+    0 0 0 2px var(--accent),
+    var(--shadow-accent);
+}
+
+.dateBadge {
+  display: inline-flex;
+  align-items: flex-start;
+  padding-top: 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1.3;
 }
 
 .content {
@@ -66,35 +121,46 @@
 
 .row {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-2);
 }
 
 .itemTitle {
-  font-size: 0.95rem;
-  color: rgba(0, 13, 12, 0.9);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
-:root[data-theme="dark"] .itemTitle {
-  color: rgba(242, 242, 240, 0.9);
-}
-
-.hours {
+.hoursBadge {
   flex: none;
-  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  color: #fff;
+  font-size: 0.74rem;
   font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
-.type {
+.typeChip {
+  display: inline-block;
   margin-top: 4px;
-  font-size: 0.85rem;
-  color: rgba(0, 13, 12, 0.6);
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  text-transform: capitalize;
 }
 
-:root[data-theme="dark"] .type {
-  color: rgba(242, 242, 240, 0.7);
-}

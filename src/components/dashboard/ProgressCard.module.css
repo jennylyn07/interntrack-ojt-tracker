@@ -1,15 +1,13 @@
 /* File: src/components/dashboard/ProgressCard.module.css
-   Purpose: Styles for the main progress card.
-   Neumorphism logic:
-   - Card uses outer shadow for soft elevation.
-   - Progress track uses inner shadow for “pressed-in” groove.
+   Purpose: Deep neomorphism progress card with animated progress bar.
 */
 
 .card {
-  padding: var(--space-3);
-  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-xl);
   background: var(--surface);
-  box-shadow: var(--shadow-soft-outer);
+  box-shadow: var(--shadow-elevated);
+  animation: fadeSlideUp 0.4s ease 0.05s both;
 }
 
 .topRow {
@@ -19,36 +17,56 @@
   gap: var(--space-2);
 }
 
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .title {
-  font-size: 1.1rem;
-  font-weight: 650;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
 }
 
 .subtitle {
-  margin-top: 4px;
-  color: rgba(0, 13, 12, 0.7);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
-:root[data-theme="dark"] .subtitle {
-  color: rgba(242, 242, 240, 0.75);
-}
-
+/* Glowing percentage badge */
 .percent {
-  min-width: 64px;
-  height: 48px;
-  border-radius: 999px;
+  min-width: 68px;
+  height: 52px;
+  border-radius: var(--radius-lg);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 0;
 
   background: var(--surface);
   box-shadow: var(--shadow-soft-inner);
 
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 1.25rem;
   color: var(--accent);
+  letter-spacing: -0.03em;
+  flex-shrink: 0;
 }
 
+.percentLabel {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: -2px;
+}
+
+/* Stats row: 3 inset chips */
 .stats {
   margin-top: var(--space-3);
   display: grid;
@@ -57,39 +75,82 @@
 }
 
 .stat {
-  padding: var(--space-2);
+  padding: var(--space-2) var(--space-2);
   border-radius: var(--radius-md);
   background: var(--surface);
   box-shadow: var(--shadow-soft-inner);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: box-shadow var(--transition-fast);
+}
+
+.stat:hover {
+  box-shadow: var(--shadow-deep-inner);
 }
 
 .statLabel {
-  font-size: 0.85rem;
-  color: rgba(0, 13, 12, 0.65);
-}
-
-:root[data-theme="dark"] .statLabel {
-  color: rgba(242, 242, 240, 0.7);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .statValue {
-  margin-top: 4px;
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
+.statUnit {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Progress bar */
 .progressTrack {
   margin-top: var(--space-3);
-  height: 14px;
-  border-radius: 999px;
+  height: 16px;
+  border-radius: var(--radius-pill);
   background: var(--surface);
-  box-shadow: var(--shadow-soft-inner);
+  box-shadow: var(--shadow-deep-inner);
   overflow: hidden;
+  position: relative;
 }
 
 .progressFill {
   height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--accent), rgba(76, 115, 111, 0.7));
-  transition: width var(--transition-med) ease;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    var(--accent-light),
+    var(--accent)
+  );
+  background-size: 200% auto;
+  transition: width var(--transition-slow) ease;
+  animation: progress-shine 3s linear infinite;
+  box-shadow: 2px 0 12px var(--accent-glow);
+}
+
+.progressMeta {
+  margin-top: var(--space-1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progressCaption {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.progressAccent {
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-weight: 700;
 }

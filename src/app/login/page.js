@@ -55,6 +55,11 @@ function LoginForm() {
 
   return (
     <div className={styles.card}>
+      {/* Neomorphic logo mark */}
+      <div className={styles.logoMark}>
+        <div className={styles.logoCircle} aria-hidden="true">🎓</div>
+      </div>
+
       {/* Header */}
       <div className={styles.header}>
         <span className={styles.wordmark}>OJT Tracker</span>

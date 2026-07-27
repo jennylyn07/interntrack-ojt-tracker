@@ -1,56 +1,122 @@
 /* File: src/components/dashboard/QuickActions.module.css
-   Purpose: Styles for quick action buttons.
+   Purpose: Deep neomorphism quick action pill buttons.
 */
 
 .card {
-  padding: var(--space-3);
-  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-xl);
   background: var(--surface);
-  box-shadow: var(--shadow-soft-outer);
+  box-shadow: var(--shadow-elevated);
+  animation: fadeSlideUp 0.4s ease 0.15s both;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.titleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+  font-size: 0.95rem;
 }
 
 .title {
   font-size: 1.05rem;
-  font-weight: 650;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
 }
 
 .actions {
-  margin-top: var(--space-2);
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-1);
 }
 
 .action {
-  min-height: 48px;
+  min-height: 52px;
   padding: 0 var(--space-3);
   border: 0;
-  border-radius: 999px;
-
+  border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--shadow-soft-outer);
-
   cursor: pointer;
   text-align: left;
-  color: rgba(0, 13, 12, 0.9);
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.005em;
 
-    /* Added: makes Link behave like button visually */
   display: flex;
   align-items: center;
+  gap: var(--space-2);
   text-decoration: none;
-  
-  transition: transform var(--transition-fast) ease, box-shadow var(--transition-med) ease;
+
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-med),
+    color var(--transition-fast);
 }
 
-:root[data-theme="dark"] .action {
-  color: rgba(242, 242, 240, 0.9);
+.actionIcon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+  transition: transform var(--transition-med);
+}
+
+.actionLabel {
+  flex: 1;
+}
+
+.actionArrow {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-med);
 }
 
 .action:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+  color: var(--accent);
+}
+
+.action:hover .actionIcon {
+  transform: scale(1.15);
+}
+
+.action:hover .actionArrow {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .action:active {
   transform: translateY(0);
-  box-shadow: var(--shadow-soft-inner);
+  box-shadow: var(--shadow-pressed);
 }
+
+.action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: var(--shadow-soft-outer);
+}
+
+.action:disabled:hover {
+  transform: none;
+  color: var(--text-primary);
+}
+

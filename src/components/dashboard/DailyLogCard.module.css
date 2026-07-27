@@ -1,15 +1,16 @@
 /* File: src/components/dashboard/DailyLogCard.module.css
-   Purpose: Styles for daily log preview card.
+   Purpose: Deep neomorphism daily log preview card.
 */
 
 .card {
-  padding: var(--space-3);
-  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-xl);
   background: var(--surface);
-  box-shadow: var(--shadow-soft-outer);
+  box-shadow: var(--shadow-elevated);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  animation: fadeSlideUp 0.4s ease 0.1s both;
 }
 
 .header {
@@ -21,88 +22,127 @@
 
 .title {
   font-size: 1.05rem;
-  font-weight: 650;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
 }
 
-.date {
-  font-size: 0.9rem;
-  color: rgba(0, 13, 12, 0.65);
-}
-
-:root[data-theme="dark"] .date {
-  color: rgba(242, 242, 240, 0.7);
+.dateBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .body {
-  padding: var(--space-2);
-  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
   background: var(--surface);
-  box-shadow: var(--shadow-soft-inner);
+  box-shadow: var(--shadow-deep-inner);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .hoursRow {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
 }
 
 .hoursLabel {
-  color: rgba(0, 13, 12, 0.7);
-  font-size: 0.95rem;
-}
-
-:root[data-theme="dark"] .hoursLabel {
-  color: rgba(242, 242, 240, 0.75);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .hoursValue {
-  font-weight: 750;
-  font-size: 1.2rem;
+  font-weight: 800;
+  font-size: 1.8rem;
   color: var(--accent);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.hoursUnit {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--muted);
+  opacity: 0.5;
+  border-radius: var(--radius-pill);
 }
 
 .previewLabel {
-  margin-top: var(--space-2);
-  font-size: 0.85rem;
-  color: rgba(0, 13, 12, 0.6);
-}
-
-:root[data-theme="dark"] .previewLabel {
-  color: rgba(242, 242, 240, 0.7);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .previewText {
-  margin-top: 6px;
-  font-size: 0.95rem;
-  color: rgba(0, 13, 12, 0.85);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  opacity: 0.8;
+  line-height: 1.55;
 }
 
-:root[data-theme="dark"] .previewText {
-  color: rgba(242, 242, 240, 0.88);
-}
-
+/* Pill-shaped CTA button */
 .cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   min-height: 48px;
   padding: 0 var(--space-3);
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--surface);
   box-shadow: var(--shadow-soft-outer);
-  color: var(--text-primary);
+  color: var(--accent);
+  font-size: 0.92rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform var(--transition-fast) ease, box-shadow var(--transition-med) ease;
-
-      /* Added: makes Link behave like button visually */
-  display: flex;
-  align-items: center;
   text-decoration: none;
+  letter-spacing: 0.01em;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-med),
+    color var(--transition-fast);
+  align-self: flex-start;
+}
+
+.cta::before {
+  content: '+';
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .cta:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+  color: var(--accent-light);
 }
 
 .cta:active {
   transform: translateY(0);
-  box-shadow: var(--shadow-soft-inner);
+  box-shadow: var(--shadow-pressed);
 }
+

@@ -102,125 +102,257 @@ export default function EditInternshipPage() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: 480, margin: "100px auto", textAlign: "center" }}>
-        <p style={{ color: "var(--accent)" }}>Loading internship details...</p>
+      <div style={{ maxWidth: 540, margin: "80px auto", padding: "0 var(--space-3)" }}>
+        <div style={{
+          background: "var(--surface)",
+          borderRadius: "var(--radius-xl)",
+          padding: "var(--space-4)",
+          boxShadow: "var(--shadow-elevated)",
+          textAlign: "center",
+        }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Loading internship details…</p>
+        </div>
       </div>
     );
   }
 
   if (notFound) {
     return (
-      <div style={{ maxWidth: 480, margin: "100px auto", textAlign: "center" }}>
-        <p style={{ color: "#ff3b30" }}>Internship not found or you don&apos;t have access.</p>
-        <Link href="/dashboard/internships" style={{ color: "var(--accent)", marginTop: 16, display: "block" }}>
-          ← Back to My Internships
-        </Link>
+      <div style={{ maxWidth: 540, margin: "80px auto", padding: "0 var(--space-3)" }}>
+        <div style={{
+          background: "var(--surface)",
+          borderRadius: "var(--radius-xl)",
+          padding: "var(--space-4)",
+          boxShadow: "var(--shadow-elevated)",
+          textAlign: "center",
+        }}>
+          <p style={{ color: "var(--danger)", fontSize: "0.9rem", marginBottom: "var(--space-2)" }}>
+            Internship not found or you don&apos;t have access.
+          </p>
+          <Link href="/dashboard/internships" style={{ color: "var(--accent)", fontWeight: 600, fontSize: "0.88rem" }}>
+            ← Back to My Internships
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={containerStyle}>
+    <div style={shellStyle}>
       <Link
         href="/dashboard/internships"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          fontSize: "0.9rem",
-          fontWeight: 600,
-          color: "var(--accent)",
-          padding: "6px 14px",
-          borderRadius: 999,
-          border: "1px solid var(--muted)",
-          background: "var(--surface)",
-          marginBottom: 4,
-        }}
+        style={backLinkStyle}
       >
-        ← Back to all internships
+        ← All internships
       </Link>
 
-      <h1 style={titleStyle}>Edit Internship</h1>
-      <p style={subtitleStyle}>
-        Changes here only affect this internship&apos;s details — not its logs or checklist items.
-      </p>
-
-      <form onSubmit={handleSubmit} style={formStyle}>
-        {error && <div style={errorStyle}>{error}</div>}
-        {success && <div style={successStyle}>Saved! Redirecting...</div>}
-
-        <div style={fieldStyle}>
-          <label style={labelStyle} htmlFor="company">Company Name</label>
-          <input style={inputStyle} type="text" id="company" name="company"
-            value={form.company} onChange={handleChange} required disabled={saving} />
+      <div style={cardStyle}>
+        {/* Card header */}
+        <div style={cardHeaderStyle}>
+          <div style={accentBarStyle} />
+          <div>
+            <h1 style={titleStyle}>Edit Internship</h1>
+            <p style={subtitleStyle}>
+              Changes here only affect this internship&apos;s details — not its logs or checklist items.
+            </p>
+          </div>
         </div>
 
-        <div style={fieldStyle}>
-          <label style={labelStyle} htmlFor="supervisor">Supervisor Name</label>
-          <input style={inputStyle} type="text" id="supervisor" name="supervisor"
-            value={form.supervisor} onChange={handleChange} required disabled={saving} />
-        </div>
+        <form onSubmit={handleSubmit} style={formStyle}>
+          {error && <div style={errorStyle}>{error}</div>}
+          {success && <div style={successStyle}>✓ Saved! Redirecting…</div>}
 
-        <div style={fieldStyle}>
-          <label style={labelStyle} htmlFor="requiredHours">Total Required Hours</label>
-          <input style={inputStyle} type="number" id="requiredHours" name="requiredHours"
-            min="10" max="2000" value={form.requiredHours}
-            onChange={handleChange} required disabled={saving} />
-        </div>
+          <div style={fieldStyle}>
+            <label style={labelStyle} htmlFor="company">Company Name</label>
+            <input style={inputStyle} type="text" id="company" name="company"
+              value={form.company} onChange={handleChange} required disabled={saving} />
+          </div>
 
-        <div style={fieldStyle}>
-          <label style={labelStyle} htmlFor="startDate">OJT Start Date</label>
-          <input style={inputStyle} type="date" id="startDate" name="startDate"
-            value={form.startDate} onChange={handleChange} required disabled={saving} />
-        </div>
+          <div style={fieldStyle}>
+            <label style={labelStyle} htmlFor="supervisor">Supervisor Name</label>
+            <input style={inputStyle} type="text" id="supervisor" name="supervisor"
+              value={form.supervisor} onChange={handleChange} required disabled={saving} />
+          </div>
 
-        <div style={fieldStyle}>
-          <label style={labelStyle} htmlFor="status">Status</label>
-          <select style={inputStyle} id="status" name="status"
-            value={form.status} onChange={handleChange} required disabled={saving}>
-            <option value="PENDING">Pending</option>
-            <option value="ACTIVE">Active</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="CANCELLED">Cancelled</option>
-          </select>
-        </div>
+          <div style={fieldStyle}>
+            <label style={labelStyle} htmlFor="requiredHours">Total Required Hours</label>
+            <input style={inputStyle} type="number" id="requiredHours" name="requiredHours"
+              min="10" max="2000" value={form.requiredHours}
+              onChange={handleChange} required disabled={saving} />
+          </div>
 
-        <div style={actionRowStyle}>
-          <button type="button" style={secondaryButtonStyle}
-            onClick={() => router.back()} disabled={saving}>
-            Cancel
-          </button>
-          <button type="submit" style={saving ? disabledButtonStyle : primaryButtonStyle}
-            disabled={saving}>
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
-      </form>
+          <div style={fieldStyle}>
+            <label style={labelStyle} htmlFor="startDate">OJT Start Date</label>
+            <input style={inputStyle} type="date" id="startDate" name="startDate"
+              value={form.startDate} onChange={handleChange} required disabled={saving} />
+          </div>
+
+          <div style={fieldStyle}>
+            <label style={labelStyle} htmlFor="status">Status</label>
+            <select style={inputStyle} id="status" name="status"
+              value={form.status} onChange={handleChange} required disabled={saving}>
+              <option value="PENDING">Pending</option>
+              <option value="ACTIVE">Active</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
+
+          <div style={actionRowStyle}>
+            <button type="button" style={cancelBtnStyle}
+              onClick={() => router.back()} disabled={saving}>
+              Cancel
+            </button>
+            <button type="submit"
+              style={saving ? { ...primaryBtnStyle, opacity: 0.5, cursor: "not-allowed" } : primaryBtnStyle}
+              disabled={saving}>
+              {saving ? "Saving…" : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
 
-const containerStyle = { maxWidth: "480px", margin: "40px auto", padding: "0 20px",
-  fontFamily: "'Inter', system-ui, -apple-system, sans-serif", boxSizing: "border-box" };
-const titleStyle = { fontSize: "1.5rem", fontWeight: "700", marginBottom: "8px",
-  marginTop: "12px", letterSpacing: "-0.01em" };
-const subtitleStyle = { color: "var(--accent)", fontSize: "0.95rem", marginBottom: "24px", lineHeight: "1.4" };
-const formStyle = { display: "flex", flexDirection: "column", gap: "18px" };
-const fieldStyle = { display: "flex", flexDirection: "column", gap: "6px" };
-const labelStyle = { fontSize: "0.9rem", fontWeight: "600", color: "var(--text-primary)" };
-const inputStyle = { padding: "10px 12px", fontSize: "1rem", borderRadius: "8px",
-  border: "1px solid var(--muted)", backgroundColor: "var(--surface)",
-  color: "var(--text-primary)", outline: "none", boxSizing: "border-box", width: "100%" };
-const errorStyle = { padding: "10px 14px", fontSize: "0.85rem", fontWeight: "500",
-  color: "#ff3b30", backgroundColor: "rgba(255,59,48,0.08)", borderRadius: "8px",
-  border: "1px solid rgba(255,59,48,0.2)" };
-const successStyle = { padding: "10px 14px", fontSize: "0.85rem", fontWeight: "500",
-  color: "#34c759", backgroundColor: "rgba(52,199,89,0.08)", borderRadius: "8px",
-  border: "1px solid rgba(52,199,89,0.2)" };
-const actionRowStyle = { display: "flex", gap: "12px", marginTop: "12px" };
-const buttonBase = { flex: 1, padding: "12px 24px", borderRadius: "999px",
-  fontSize: "1rem", fontWeight: "500", cursor: "pointer", boxSizing: "border-box" };
-const primaryButtonStyle = { ...buttonBase, color: "var(--surface)", backgroundColor: "var(--accent)", border: "none" };
-const secondaryButtonStyle = { ...buttonBase, color: "var(--text-primary)",
-  backgroundColor: "var(--surface)", border: "1px solid var(--muted)" };
-const disabledButtonStyle = { ...primaryButtonStyle, opacity: 0.5, cursor: "not-allowed" };
+const shellStyle = {
+  maxWidth: 540,
+  margin: "0 auto",
+  padding: "var(--space-4) var(--space-3)",
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--space-2)",
+  animation: "fadeSlideUp 0.35s ease both",
+};
+
+const backLinkStyle = {
+  fontSize: "0.83rem",
+  fontWeight: 600,
+  color: "var(--accent)",
+  letterSpacing: "0.02em",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 4,
+};
+
+const cardStyle = {
+  background: "var(--surface)",
+  borderRadius: "var(--radius-xl)",
+  padding: "var(--space-4)",
+  boxShadow: "var(--shadow-elevated)",
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--space-3)",
+};
+
+const cardHeaderStyle = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "var(--space-2)",
+};
+
+const accentBarStyle = {
+  width: 4,
+  alignSelf: "stretch",
+  minHeight: 40,
+  borderRadius: "0 4px 4px 0",
+  background: "linear-gradient(180deg, var(--accent-light), var(--accent))",
+  flexShrink: 0,
+};
+
+const titleStyle = {
+  fontSize: "1.3rem",
+  fontWeight: 800,
+  letterSpacing: "-0.02em",
+  color: "var(--text-primary)",
+  margin: 0,
+};
+
+const subtitleStyle = {
+  marginTop: 4,
+  fontSize: "0.85rem",
+  color: "var(--text-muted)",
+  fontWeight: 400,
+  lineHeight: 1.55,
+};
+
+const formStyle = { display: "flex", flexDirection: "column", gap: "var(--space-2)" };
+const fieldStyle = { display: "flex", flexDirection: "column", gap: 8 };
+
+const labelStyle = {
+  fontSize: "0.78rem",
+  fontWeight: 700,
+  letterSpacing: "0.04em",
+  textTransform: "uppercase",
+  color: "var(--text-primary)",
+};
+
+const inputStyle = {
+  padding: "13px 16px",
+  fontSize: "0.95rem",
+  fontFamily: "inherit",
+  borderRadius: "var(--radius-md)",
+  border: "none",
+  background: "var(--surface)",
+  color: "var(--text-primary)",
+  boxShadow: "var(--shadow-deep-inner)",
+  outline: "none",
+  boxSizing: "border-box",
+  width: "100%",
+  fontWeight: 500,
+  transition: "box-shadow 150ms",
+};
+
+const errorStyle = {
+  padding: "12px 16px",
+  fontSize: "0.85rem",
+  fontWeight: 500,
+  color: "var(--danger)",
+  background: "rgba(192, 57, 43, 0.06)",
+  borderRadius: "var(--radius-md)",
+  boxShadow: "var(--shadow-soft-inner)",
+  lineHeight: 1.5,
+};
+
+const successStyle = {
+  padding: "12px 16px",
+  fontSize: "0.85rem",
+  fontWeight: 600,
+  color: "#1a7a37",
+  background: "rgba(52, 199, 89, 0.07)",
+  borderRadius: "var(--radius-md)",
+  boxShadow: "var(--shadow-soft-inner)",
+  lineHeight: 1.5,
+};
+
+const actionRowStyle = { display: "flex", gap: "var(--space-1)", marginTop: "var(--space-1)" };
+
+const cancelBtnStyle = {
+  flex: 1,
+  padding: "13px 24px",
+  borderRadius: "var(--radius-pill)",
+  border: 0,
+  background: "var(--surface)",
+  color: "var(--text-muted)",
+  fontSize: "0.92rem",
+  fontWeight: 600,
+  cursor: "pointer",
+  boxShadow: "var(--shadow-soft-outer)",
+  fontFamily: "inherit",
+};
+
+const primaryBtnStyle = {
+  flex: 2,
+  padding: "13px 24px",
+  borderRadius: "var(--radius-pill)",
+  border: 0,
+  background: "linear-gradient(135deg, var(--accent-light), var(--accent))",
+  color: "#fff",
+  fontSize: "0.95rem",
+  fontWeight: 700,
+  cursor: "pointer",
+  letterSpacing: "0.02em",
+  fontFamily: "inherit",
+  boxShadow: "var(--shadow-accent)",
+  transition: "transform 150ms, box-shadow 260ms, opacity 150ms",
+};

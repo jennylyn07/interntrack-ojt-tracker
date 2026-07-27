@@ -28,6 +28,14 @@ export const auth = betterAuth({
   // failures there cause getSession() to return null even with a valid cookie.
   baseURL: process.env.BETTER_AUTH_URL,
 
+  // Allow requests from both local dev and production deployments.
+  // Without this, setting BETTER_AUTH_URL to one origin rejects the other.
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://intern-track-ojt-tracker.vercel.app",
+  ],
+
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),

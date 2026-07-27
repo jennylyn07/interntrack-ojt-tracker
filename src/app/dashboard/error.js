@@ -25,49 +25,64 @@ export default function DashboardError({ error, reset }) {
       alignItems: "center",
       justifyContent: "center",
       minHeight: "60vh",
-      gap: "1.5rem",
+      gap: "var(--space-3)",
       textAlign: "center",
-      padding: "2rem",
+      padding: "var(--space-3)",
+      animation: "fadeSlideUp 0.35s ease both",
     }}>
       <div style={{
         background: "var(--surface)",
-        border: "1px solid var(--muted)",
-        borderRadius: "var(--radius-lg)",
+        borderRadius: "var(--radius-xl)",
         padding: "var(--space-4)",
-        boxShadow: "var(--shadow-soft-outer)",
-        maxWidth: 440,
+        boxShadow: "var(--shadow-elevated)",
+        maxWidth: 460,
         width: "100%",
+        overflow: "hidden",
+        position: "relative",
       }}>
-        <p style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>⚠️</p>
+        {/* Warning accent strip */}
+        <div style={{
+          height: 4,
+          background: "linear-gradient(90deg, #e67e22, #c0392b)",
+          borderRadius: "var(--radius-pill)",
+          marginBottom: "var(--space-3)",
+        }} />
+
+        <p style={{ fontSize: "2.2rem", lineHeight: 1, marginBottom: "var(--space-1)" }}>⚠️</p>
         <h2 style={{
-          fontSize: "1.2rem",
-          fontWeight: 700,
-          marginBottom: "0.75rem",
+          fontSize: "1.25rem",
+          fontWeight: 800,
+          letterSpacing: "-0.02em",
+          marginBottom: "var(--space-1)",
           color: "var(--text-primary)",
         }}>
           Something went wrong
         </h2>
         <p style={{
-          fontSize: "0.95rem",
-          color: "var(--accent)",
-          lineHeight: 1.5,
-          marginBottom: "1.5rem",
+          fontSize: "0.88rem",
+          color: "var(--text-muted)",
+          lineHeight: 1.65,
+          marginBottom: "var(--space-3)",
         }}>
           The dashboard couldn&apos;t load. This is usually a temporary issue —
-          try refreshing the page. If the problem keeps happening, check your
+          try refreshing the page. If the problem persists, check your
           internet connection or try again in a few minutes.
         </p>
         <button
           onClick={reset}
           style={{
-            padding: "10px 24px",
-            borderRadius: 999,
-            background: "var(--accent)",
-            color: "var(--surface)",
-            fontWeight: 600,
+            padding: "12px 32px",
+            borderRadius: "var(--radius-pill)",
+            background: "linear-gradient(135deg, var(--accent-light), var(--accent))",
+            color: "#fff",
+            fontWeight: 700,
             fontSize: "0.9rem",
+            letterSpacing: "0.02em",
             border: "none",
             cursor: "pointer",
+            boxShadow: "var(--shadow-accent)",
+            fontFamily: "inherit",
+            transition: "transform 150ms, box-shadow 260ms",
           }}
         >
           Try again
