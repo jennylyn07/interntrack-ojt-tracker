@@ -54,6 +54,18 @@ export default async function DashboardPage({ searchParams }) {
     redirect("/login");
   }
 
+  // Authoritative email-verification gate.
+  // proxy.js only checks that a session cookie exists — it cannot read
+  // emailVerified without a full DB call. This server component IS the
+  // right place for that check, after getSession() already ran.
+  //
+  // Better Auth creates a session on signUp even with requireEmailVerification:true
+  // (the user gets a session token but the account is not yet verified). We must
+  // therefore explicitly block unverified accounts here.
+  if (!session.user.emailVerified) {
+    redirect("/login?error=email-not-verified");
+  }
+
   // Next.js 15+ searchParams is a Promise in server components
   const resolvedParams = await searchParams;
   const preferredInternshipId = resolvedParams?.internshipId ?? null;

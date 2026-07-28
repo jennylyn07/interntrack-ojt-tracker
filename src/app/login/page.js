@@ -21,6 +21,8 @@ function LoginForm() {
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const errorParam = searchParams.get("error");
+  const needsVerification = errorParam === "email-not-verified";
 
   async function handleGoogleLogin() {
     setError("");
@@ -66,6 +68,17 @@ function LoginForm() {
         <h1 className={styles.title}>Welcome back</h1>
         <p className={styles.subtitle}>Sign in to log your hours and track your progress</p>
       </div>
+
+      {/* Email-not-verified notice — shown when redirected from /dashboard */}
+      {needsVerification && (
+        <div className={styles.verifyNotice}>
+          <span className={styles.verifyIcon}>📬</span>
+          <div>
+            <strong>Email not verified</strong>
+            <p>Check your inbox for a confirmation link before signing in.</p>
+          </div>
+        </div>
+      )}
 
       {/* Google */}
       <button

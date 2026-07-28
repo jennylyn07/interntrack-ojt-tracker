@@ -52,6 +52,11 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      // Force the account picker on every sign-in attempt.
+      // Without this, Google silently reuses whatever account is already
+      // active in the browser session — no picker shown at all.
+      // "select_account" is a standard OIDC prompt value; Google honours it.
+      prompt: "select_account",
     },
   },
 
