@@ -36,6 +36,17 @@ export const auth = betterAuth({
     "https://intern-track-ojt-tracker.vercel.app",
   ],
 
+  // ── User management ───────────────────────────────────────────────────────
+  user: {
+    // Enables the deleteUser client method. The actual deletion in this app
+    // goes through a custom /api/account DELETE route (because Internship,
+    // LogEntry and ChecklistItem don't have onDelete: Cascade — a custom
+    // Prisma transaction handles the cascade manually first).
+    deleteUser: {
+      enabled: true,
+    },
+  },
+
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),

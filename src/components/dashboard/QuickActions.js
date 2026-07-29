@@ -25,16 +25,11 @@ export default function QuickActions() {
           <span className={styles.actionArrow} aria-hidden="true">→</span>
         </Link>
 
-        <button
-          type="button"
-          className={styles.action}
-          aria-label="Download report — coming soon"
-          disabled
-          title="Report download coming soon"
-        >
-          <span className={styles.actionIcon} aria-hidden="true">📊</span>
-          <span className={styles.actionLabel}>Download Report</span>
-        </button>
+        <Link href="/dashboard/settings" className={styles.action}>
+          <span className={styles.actionIcon} aria-hidden="true">⚙️</span>
+          <span className={styles.actionLabel}>Settings</span>
+          <span className={styles.actionArrow} aria-hidden="true">→</span>
+        </Link>
       </div>
     </section>
   );
