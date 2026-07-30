@@ -1,0 +1,168 @@
+/* File: src/components/dashboard/JournalCard.module.css
+   Purpose: Deep neomorphism journal entry preview card.
+   The left accent strip changes colour per mood via .mood_* modifier classes.
+*/
+
+/* ── Base card ────────────────────────────────────────────────────────────── */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-elevated);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform var(--transition-med),
+    box-shadow var(--transition-med);
+  animation: fadeSlideUp 0.4s ease both;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    16px 16px 40px rgba(148, 164, 160, 0.75),
+    -10px -10px 28px rgba(255, 255, 255, 0.95);
+}
+
+:root[data-theme="dark"] .card:hover {
+  box-shadow:
+    18px 18px 44px rgba(3, 8, 7, 0.88),
+    -8px -8px 24px rgba(18, 40, 37, 0.62);
+}
+
+.card:active {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft-outer);
+}
+
+/* ── Mood accent strip (left bar) ─────────────────────────────────────────── */
+.moodStrip {
+  display: block;
+  flex-shrink: 0;
+  width: 5px;
+  border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+  background: var(--accent);         /* default fallback */
+}
+
+/* Per-mood strip colours */
+.mood_great    .moodStrip { background: linear-gradient(180deg, #4caf83, #27ae60); }
+.mood_good     .moodStrip { background: linear-gradient(180deg, var(--accent-light), var(--accent)); }
+.mood_okay     .moodStrip { background: linear-gradient(180deg, #9eb8b4, #7a9995); }
+.mood_rough    .moodStrip { background: linear-gradient(180deg, #e8a044, #d4841a); }
+.mood_terrible .moodStrip { background: linear-gradient(180deg, #e07070, #c0392b); }
+
+/* ── Body ─────────────────────────────────────────────────────────────────── */
+.body {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0; /* prevent overflow of truncated text */
+}
+
+/* ── Top row: date + mood chip ────────────────────────────────────────────── */
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.dateBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.moodChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft-inner);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.moodEmoji {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.moodLabel {
+  line-height: 1;
+}
+
+/* ── Title ────────────────────────────────────────────────────────────────── */
+.title {
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Content preview ──────────────────────────────────────────────────────── */
+.preview {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  opacity: 0.7;
+  line-height: 1.55;
+  /* Two-line clamp for consistent card heights */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: 2px;
+}
+
+.companyTag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.readMore {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  transition: letter-spacing var(--transition-fast);
+}
+
+.card:hover .readMore {
+  letter-spacing: 0.06em;
+}

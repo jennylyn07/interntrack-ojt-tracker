@@ -1,6 +1,6 @@
 # Project Architecture & Tech Stack: InternTrack OJT Tracker
 
-> **Revision notes:** Updated 2026-07-24 — Production deployment is now live at `https://intern-track-ojt-tracker.vercel.app`. A post-deployment debugging session resolved a three-layer redirect loop bug (proxy cookie name mismatch, missing `baseURL`, `router.refresh()` race — see Section 11). Status table updated; Section 8 annotated as live.
+> **Revision notes:** Updated 2026-07-28 — Google OAuth (social login) and Resend email verification shipped in commit `0651fd1`. Dashboard UI redesigned to deep neomorphism in `3c5dd53`. `trustedOrigins` added to `auth.js` in the same commit, closing the known gap from Section 11.2. Status table and Section 5 updated to reflect these.
 
 Welcome! If you are preparing for a career in software engineering, this project is built using the same **architectural patterns, frameworks, and tools** that modern tech companies use.
 
@@ -42,9 +42,13 @@ Before anything else — here's what's actually running today versus what's desi
 | Database schema & Prisma migrations | ✅ Built (5 migrations tracked) |
 | Development-safe database connections (singleton) | ✅ Built |
 | Authentication (Better Auth) | ✅ Built — Phase 7 complete |
+| Google OAuth social login | ✅ Built — commit `0651fd1` |
+| Resend email verification on registration | ✅ Built — commit `0651fd1` |
+| Deep neomorphism UI redesign | ✅ Built — commit `3c5dd53` |
 | Session-based IDOR protection | ✅ Built & verified (14/14 checks pass) |
 | Password hashing | ✅ Built — Better Auth handles hashing via scrypt |
 | Route protection (proxy.js) | ✅ Built — checks both `__Secure-` (HTTPS/production) and plain (HTTP/dev) cookie names |
+| Trusted origins (localhost + production) | ✅ Built — `trustedOrigins` set in `auth.js` (commit `3c5dd53`) |
 | Production-safe connection pooling | 🔜 Planned — see Section 4B |
 | Deployment | ✅ Live — `https://intern-track-ojt-tracker.vercel.app` (2026-07-24) |
 
@@ -216,7 +220,9 @@ For this project, the required variables are:
 | `BETTER_AUTH_SECRET` | Signs and encrypts session tokens — generate with `openssl rand -base64 32` |
 | `BETTER_AUTH_URL` | Full public URL of the deployed app (e.g. `https://your-app.vercel.app`) — used by Better Auth to construct callbacks and redirects |
 | `DIRECT_URL` | Direct (non-pooled) connection string — only needed when running `prisma migrate deploy` against a managed pooler in CI/CD |
-| OAuth client ID / secret | Optional — only needed if adding Google/GitHub login in the future |
+| `GOOGLE_CLIENT_ID` | From Google Cloud Console → APIs & Services → Credentials |
+| `GOOGLE_CLIENT_SECRET` | Paired with the client ID above |
+| `RESEND_API_KEY` | From resend.com — used to send the email verification message on registration |
 
 In production, these live in the hosting platform's dashboard (for Vercel: Project Settings → Environment Variables) — not in a file at all.
 
@@ -308,15 +314,7 @@ All four of these were found and resolved during the first production login test
 
 ### 11.2 — Better Auth rejects Vercel auto-generated branch-preview URLs
 
-**Status:** Known gap, low priority, not yet addressed.
-
-When testing on Vercel's auto-generated branch-preview URLs (e.g. `https://intern-track-ojt-tracker-git-main-jennylyns-projects.vercel.app`), Better Auth logs:
-
-```
-[Better Auth]: Invalid origin: https://intern-track-ojt-tracker-git-main-jennylyns-projects.vercel.app
-```
-
-This is expected: Better Auth validates origins against `BETTER_AUTH_URL`, and Vercel's preview URLs don't match the production origin. Auth fails on preview deployments as a result. Not worth addressing until preview-environment testing becomes a regular workflow step. Future fix: configure `trustedOrigins` in `auth.js` (see [Better Auth docs](https://www.better-auth.com/docs/concepts/options#trusted-origins)).
+**Status:** Partially fixed. `trustedOrigins` added to `auth.js` in commit `3c5dd53` for `localhost:3000`, `localhost:3001`, and the production URL — this closes the dev↔prod mismatch. Vercel preview-branch URLs (e.g. `https://intern-track-ojt-tracker-git-main-jennylyns-projects.vercel.app`) are still not listed; auth will still fail on those. Low priority unless preview testing becomes a regular workflow.
 
 ### 11.3 — Proxy checked the wrong cookie name in production (the main blocker)
 

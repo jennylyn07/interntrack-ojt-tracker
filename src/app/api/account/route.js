@@ -89,17 +89,21 @@ export async function DELETE(request) {
   // Session and Account reference User WITH cascade — they clean up automatically
   // when the User row is deleted last.
   await prisma.$transaction([
-    // 1. Delete log entries belonging to this user's internships
+    // 1. Delete journal entries belonging to this user's internships
+    prisma.journalEntry.deleteMany({
+      where: { internship: { userId } },
+    }),
+    // 2. Delete log entries belonging to this user's internships
     prisma.logEntry.deleteMany({
       where: { internship: { userId } },
     }),
-    // 2. Delete checklist items belonging to this user's internships
+    // 3. Delete checklist items belonging to this user's internships
     prisma.checklistItem.deleteMany({
       where: { internship: { userId } },
     }),
-    // 3. Delete internships
+    // 4. Delete internships
     prisma.internship.deleteMany({ where: { userId } }),
-    // 4. Delete the user row — cascades to Session and Account automatically
+    // 5. Delete the user row — cascades to Session and Account automatically
     prisma.user.delete({ where: { id: userId } }),
   ]);
 

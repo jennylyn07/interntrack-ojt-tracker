@@ -19,6 +19,12 @@ export default function QuickActions() {
           <span className={styles.actionArrow} aria-hidden="true">→</span>
         </Link>
 
+        <Link href="/dashboard/journal" className={styles.action}>
+          <span className={styles.actionIcon} aria-hidden="true">📓</span>
+          <span className={styles.actionLabel}>Journal</span>
+          <span className={styles.actionArrow} aria-hidden="true">→</span>
+        </Link>
+
         <Link href="/dashboard/internships" className={styles.action}>
           <span className={styles.actionIcon} aria-hidden="true">🏢</span>
           <span className={styles.actionLabel}>My Internships</span>

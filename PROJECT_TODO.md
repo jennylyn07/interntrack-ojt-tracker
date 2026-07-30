@@ -1,16 +1,17 @@
 # OJT Tracker – Project To-Do & Roadmap
 
-Last updated: 2026-07-24
+Last updated: 2026-07-28
 
 ## Summary
-A Next.js 16 (App Router) + Prisma + PostgreSQL app for students to log OJT hours, view progress, and manage profile data. Authentication is implemented via Better Auth with real session-based security. All core features through Phase 7 are complete and the app is deployed to production.
+A Next.js 16 (App Router) + Prisma + PostgreSQL app for students to log OJT hours, view progress, and manage profile data. Authentication is implemented via Better Auth with real session-based security. Google OAuth (social login) and Resend email verification are live. All core features through Phase 8 are complete and the app is deployed to production.
 
 ## Status Overview
 - Framework: Next.js 16, React 19
 - ORM: Prisma (client output to `src/generated/prisma`), 4 migrations tracked
-- Auth: Better Auth ✅ (replaced hardcoded temp-user-1 placeholder)
+- Auth: Better Auth ✅ — email/password + Google OAuth + Resend email verification
 - DB: PostgreSQL via Neon (pooled connection string in production)
 - Route protection: `src/proxy.js` (checks both `__Secure-` and plain cookie names) + per-route `getSession()` calls
+- Trusted origins: `trustedOrigins` set in `auth.js` for localhost + production
 - IDOR protection: verified 2026-07-16 — 14/14 test checks passed
 - Production URL: https://intern-track-ojt-tracker.vercel.app ✅ Live
 
@@ -40,6 +41,23 @@ A Next.js 16 (App Router) + Prisma + PostgreSQL app for students to log OJT hour
 - [x] Route protection via `src/proxy.js` (Next.js 16 proxy, replaces middleware.js)
   - [x] Proxy checks both `__Secure-better-auth.session_token` (HTTPS/production) and `better-auth.session_token` (HTTP/dev)
 - [x] Password hashing via Better Auth (scrypt)
+
+### Google OAuth + Email Verification (Phase 8 — commit 0651fd1)
+- [x] Google OAuth social provider configured in `auth.js` (`socialProviders.google`)
+  - [x] Google Cloud Console credentials wired via `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
+  - [x] Callback URLs registered: localhost + production
+  - [x] "Continue with Google" button added to `/login` and `/register`
+- [x] Resend email verification on new email/password registrations
+  - [x] `requireEmailVerification: true` in `emailAndPassword` config
+  - [x] `emailVerification.sendVerificationEmail` sends styled HTML email via Resend
+  - [x] `RESEND_API_KEY` added to `.env` / `.env.example` / Vercel dashboard
+  - [x] `/register` shows verification-pending state after signup
+  - [x] `scripts/mark-existing-users-verified.sql` — one-time fix for pre-existing accounts
+- [x] `trustedOrigins` added to `auth.js` for `localhost:3000`, `localhost:3001`, and production (fixes 11.2)
+
+### UI Redesign (commits 4a24d61, 3c5dd53)
+- [x] Deep neomorphism UI redesign applied across dashboard
+- [x] Login and register pages rethemed to match app design system
 
 ### Security Verification
 - [x] IDOR test matrix (14 checks) run 2026-07-16 — all passed
@@ -75,7 +93,8 @@ A Next.js 16 (App Router) + Prisma + PostgreSQL app for students to log OJT hour
 - [ ] Switch `DATABASE_URL` to the Neon **pooler** hostname (`ep-...-pooler.ap-southeast-1...`) for proper connection pooling under traffic — see ARCHITECTURE.md Section 4B
 
 ### Known Minor Gaps (see ARCHITECTURE.md Section 11)
-- [ ] **11.2** — Better Auth rejects Vercel preview-branch URLs (`Invalid origin` error). Fix: add preview URL to `trustedOrigins` in `auth.js`. Low priority until preview testing is a regular workflow.
+- [x] **11.2** — `trustedOrigins` now set in `auth.js` for localhost + production (fixed in commit 3c5dd53). Vercel preview-branch URLs still not listed — add them if preview testing becomes a regular workflow.
+- [ ] Resend sender address uses `onboarding@resend.dev` (test default). Update to a verified custom domain once one is configured in the Resend dashboard for production.
 
 ### Polish & Reliability
 - [ ] Zod schema unit tests (high value, low effort — first testing target)
@@ -98,3 +117,5 @@ A Next.js 16 (App Router) + Prisma + PostgreSQL app for students to log OJT hour
 1. Add `prisma migrate deploy` to CI/CD pipeline so schema changes deploy automatically
 2. Confirm `DATABASE_URL` on Vercel points to the Neon **pooler** endpoint (Section 4B)
 3. Write Zod schema tests
+4. Update Resend sender from `onboarding@resend.dev` to a verified custom domain (production polish)
+5. Add Vercel preview-branch URLs to `trustedOrigins` if preview testing becomes part of the workflow
