@@ -192,3 +192,47 @@ button {
   0%   { background-position: -200% center; }
   100% { background-position:  200% center; }
 }
+
+/* ── Mobile / responsive globals ────────────────────────────────────────────
+   These rules apply app-wide, not per-component.
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* Smooth momentum scrolling on iOS */
+html {
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+}
+
+/* Prevent horizontal overflow from any child */
+body {
+  overflow-x: hidden;
+}
+
+/* Touch tap highlight — use a subtle teal tint instead of the default grey */
+* {
+  -webkit-tap-highlight-color: rgba(61, 112, 104, 0.12);
+}
+
+/* Ensure every interactive element is at least 44×44 px (WCAG 2.5.5) */
+button,
+a,
+[role="button"] {
+  min-height: 44px;
+}
+
+/* Slightly smaller base font on very narrow screens */
+@media (max-width: 360px) {
+  html { font-size: 15px; }
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

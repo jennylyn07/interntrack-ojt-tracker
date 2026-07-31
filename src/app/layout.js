@@ -6,6 +6,17 @@ export const metadata = {
   description: "Student OJT Tracking System",
 };
 
+// Proper Next.js viewport export — prevents iOS auto-zoom on input focus
+// and stops layout shifts when the soft keyboard appears.
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,        // prevents iOS from zooming into form inputs
+  interactiveWidget: "resizes-content",
+  themeColor: "#e4e8e7",  // matches --bg-primary (light mode surface)
+};
+
+
 export default function RootLayout({ children }) {
   // Teaching note:
   // RootLayout is a server component. We can still embed a tiny inline script

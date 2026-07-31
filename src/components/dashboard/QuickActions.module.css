@@ -73,6 +73,10 @@
   width: 28px;
   text-align: center;
   transition: transform var(--transition-med);
+  /* Force emoji rendering on iOS/Android — prevents grey-box fallback */
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji',
+               'Android Emoji', sans-serif;
+  line-height: 1;
 }
 
 .actionLabel {

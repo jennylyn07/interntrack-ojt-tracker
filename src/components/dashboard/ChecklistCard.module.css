@@ -11,6 +11,10 @@
   animation: fadeSlideUp 0.4s ease 0.2s both;
 }
 
+@media (max-width: 480px) {
+  .card { padding: var(--space-2) var(--space-2); }
+}
+
 .header {
   display: flex;
   align-items: baseline;
@@ -171,6 +175,11 @@
     background var(--transition-fast),
     color var(--transition-fast),
     box-shadow var(--transition-fast);
+}
+
+/* Larger touch target on mobile */
+@media (max-width: 480px) {
+  .deleteButton { width: 44px; height: 44px; }
 }
 
 .deleteButton:hover {

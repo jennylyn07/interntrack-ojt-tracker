@@ -17,6 +17,14 @@
   animation: fadeSlideUp 0.35s ease both;
 }
 
+/* ── Mobile: ≤ 480px ─────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .header {
+    padding: 14px var(--space-2);
+    gap: 10px;
+  }
+}
+
 /* Decorative teal accent bar on the left edge */
 .header::before {
   content: '';
@@ -55,6 +63,14 @@
   position: relative;
 }
 
+@media (max-width: 480px) {
+  .avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+}
+
 .avatar::after {
   content: '';
   position: absolute;
@@ -88,6 +104,23 @@
   letter-spacing: -0.025em;
   margin-top: 1px;
   color: var(--text-primary);
+  /* Prevent long names from blowing the layout */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  .studentName {
+    font-size: 1.15rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .studentName {
+    font-size: 1rem;
+  }
 }
 
 .meta {
@@ -122,6 +155,12 @@
   align-items: center;
   gap: var(--space-1);
   flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .right {
+    gap: 6px;
+  }
 }
 
 /* Settings gear icon — sized and styled to sit flush with SignOut + ThemeToggle */

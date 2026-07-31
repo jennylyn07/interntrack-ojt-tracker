@@ -12,6 +12,13 @@
   animation: fadeSlideUp 0.35s ease both;
 }
 
+@media (max-width: 480px) {
+  .page {
+    padding: var(--space-2) var(--space-1);
+    gap: var(--space-2);
+  }
+}
+
 /* ── Page header ─────────────────────────────────────────────────────────── */
 .pageHeader {
   display: flex;
@@ -48,6 +55,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .pageTitle { font-size: 1.3rem; }
 }
 
 .titleIcon {

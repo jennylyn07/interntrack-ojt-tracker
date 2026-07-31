@@ -65,12 +65,19 @@
   min-width: 0; /* prevent overflow of truncated text */
 }
 
+@media (max-width: 480px) {
+  .body {
+    padding: 14px var(--space-2);
+  }
+}
+
 /* ── Top row: date + mood chip ────────────────────────────────────────────── */
 .topRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
+  flex-wrap: wrap; /* allow badge + chip to wrap on very narrow screens */
 }
 
 .dateBadge {

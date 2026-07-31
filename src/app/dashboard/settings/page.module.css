@@ -12,6 +12,13 @@
   gap: var(--space-4);
 }
 
+@media (max-width: 480px) {
+  .page {
+    padding: var(--space-2) var(--space-1);
+    gap: var(--space-3);
+  }
+}
+
 /* ── Loading state ───────────────────────────────────────────────────────── */
 .loadingShell {
   display: flex;

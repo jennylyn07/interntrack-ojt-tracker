@@ -10,6 +10,10 @@
   animation: fadeSlideUp 0.4s ease 0.05s both;
 }
 
+@media (max-width: 480px) {
+  .card { padding: var(--space-2) var(--space-2); }
+}
+
 .topRow {
   display: flex;
   align-items: flex-start;
@@ -72,6 +76,11 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-2);
+}
+
+@media (max-width: 360px) {
+  /* On very narrow screens give the stat chips a bit less gap */
+  .stats { gap: 8px; }
 }
 
 .stat {
