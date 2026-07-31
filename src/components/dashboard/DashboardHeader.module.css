@@ -17,11 +17,13 @@
   animation: fadeSlideUp 0.35s ease both;
 }
 
-/* ── Mobile: ≤ 480px ─────────────────────────────────────────────────────── */
+/* ── Mobile: ≤ 480px — wrap to two rows ─────────────────────────────────── */
 @media (max-width: 480px) {
   .header {
-    padding: 14px var(--space-2);
-    gap: 10px;
+    flex-wrap: wrap;          /* allow rows to wrap */
+    padding: 14px 14px 12px;
+    gap: 8px;
+    row-gap: 10px;
   }
 }
 
@@ -43,6 +45,14 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+/* On mobile: left section spans full width → name gets all available space */
+@media (max-width: 480px) {
+  .left {
+    flex: 1 1 100%;  /* full-width row 1 */
+    min-width: 0;
+  }
 }
 
 /* Avatar circle showing first letter of student name */
@@ -111,16 +121,13 @@
   max-width: 100%;
 }
 
+/* Now that the name has its own full row, we can use a comfortable font size */
 @media (max-width: 480px) {
-  .studentName {
-    font-size: 1.15rem;
-  }
+  .studentName { font-size: 1.25rem; }
 }
 
 @media (max-width: 360px) {
-  .studentName {
-    font-size: 1rem;
-  }
+  .studentName { font-size: 1.05rem; }
 }
 
 .meta {
@@ -157,9 +164,14 @@
   flex-shrink: 0;
 }
 
+/* On mobile: right buttons sit on row 2, aligned to the right edge */
 @media (max-width: 480px) {
   .right {
-    gap: 6px;
+    flex: 1 1 100%;        /* full-width row 2 */
+    justify-content: flex-end;
+    gap: 8px;
+    /* Indent to align under name text (past the avatar) */
+    padding-left: 48px;
   }
 }
 

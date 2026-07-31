@@ -13,6 +13,25 @@
   box-sizing: border-box;
 }
 
+/* ── Form element reset ─────────────────────────────────────────────────────
+   iOS Safari applies -webkit-appearance: auto to inputs which overrides
+   our neomorphism box-shadow inset styling, making inputs appear invisible.
+   Reset this globally so our CSS takes full control.
+   ─────────────────────────────────────────────────────────────────────── */
+input,
+textarea,
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  /* Transparent border forces the browser to respect box-shadow boundaries */
+  border: 1px solid transparent;
+  /* Prevent iOS from overriding text and background colours */
+  color: inherit;
+  background-color: inherit;
+  font: inherit;
+}
+
+
 /* ══════════════════════════════════════════════════════
    LIGHT THEME — warm off-white neumorphic surface
    ══════════════════════════════════════════════════════ */
