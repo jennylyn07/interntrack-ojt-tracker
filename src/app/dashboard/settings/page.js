@@ -38,9 +38,12 @@ export default function SettingsPage() {
   const [profileSuccess, setProfileSuccess] = useState(false);
   const [profileError, setProfileError] = useState("");
 
-  // Seed name from session once loaded
+  // Seed name from session once loaded.
+  // Legitimate exception: this seeds a controlled form field from async session
+  // data — exactly the "subscribe for updates from an external system" pattern
+  // the rule is designed to allow. The setState call is conditional and guarded.
   useEffect(() => {
-    if (session?.user?.name) setName(session.user.name);
+    if (session?.user?.name) setName(session.user.name); // eslint-disable-line react-hooks/set-state-in-effect
   }, [session]);
 
   async function handleProfileSave(e) {

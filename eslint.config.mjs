@@ -10,6 +10,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Auto-generated Prisma client output — not hand-written code.
+    "src/generated/**",
   ]),
 
   // ── SQL-injection guard ───────────────────────────────────────────────────
