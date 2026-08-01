@@ -203,6 +203,25 @@ One command distinction worth internalizing before Section 8 (Deployment): `pris
 
 **Why this is industry-standard:** This works like Git, but for your database structure. Multiple developers working on the same project can synchronize their databases instantly by running `npx prisma migrate dev` locally, while production stays on the safer `migrate deploy` path.
 
+**Known gap — dual-database dev/prod split (commit `9c1288f`):**
+This project uses two separate databases that **do not sync automatically**:
+
+| Context | Connection | Target |
+| :--- | :--- | :--- |
+| App at runtime (dev) | `DATABASE_URL` | Local Postgres (`localhost:5432/ojt_tracker`) |
+| App at runtime (prod) | `DATABASE_URL` on Vercel | Neon pooled URL |
+| `prisma migrate dev` | `DIRECT_URL` via `prisma.config.ts` | Neon directly |
+
+Every schema change therefore requires **two explicit steps**, in order:
+
+1. Run `prisma migrate dev` (or write the migration SQL manually, then apply it) — this targets `DIRECT_URL` (Neon) and covers production.
+2. Manually apply the same SQL to local Postgres dev — e.g. via a one-off Node.js script using `pg` directly, since Prisma 7 removed the `--url` flag from `prisma db execute`.
+
+This already bit us once with the `rate_limit` table: `prisma migrate dev` reported success, `prisma generate` ran, but the dev server threw HTTP 500 on every login attempt until the table was also created locally via a `pg` script. The migration was correctly applied to Neon (production was fine), but local dev was broken until the manual step was done.
+
+If this split causes repeated friction, the fix is to point `DATABASE_URL` in `.env` at Neon's pooled URL for all environments and drop the local Postgres entirely — the dev experience is essentially the same, and it eliminates the sync problem.
+
+
 ---
 
 ## 5. Environment Variables & Secrets Management
