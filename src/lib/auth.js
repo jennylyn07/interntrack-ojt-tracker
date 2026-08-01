@@ -76,9 +76,35 @@ export const auth = betterAuth({
   // inbox before they can sign in. Existing accounts registered before this
   // feature was enabled must have emailVerified set to true in the DB first
   // (see scripts/mark-existing-users-verified.sql).
+  //
+  // minPasswordLength: enforced server-side on new sign-ups only. Existing
+  // users with shorter passwords are not locked out on login.
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    minPasswordLength: 12,
+  },
+
+  // ── Rate limiting ─────────────────────────────────────────────────────────
+  // storage: "database" writes counters to the `rate_limit` Postgres table
+  // (see prisma/migrations/20260801000000_add_rate_limit).
+  // This survives Vercel cold starts and is shared across all serverless
+  // instances — unlike the default in-memory store which resets on restart.
+  //
+  // customRules tighten the login endpoint specifically:
+  //   /sign-in/email — 10 attempts per 60-second window per IP.
+  //   The 11th request within that window returns HTTP 429 without touching
+  //   the password hash at all.
+  //
+  // enabled: true is set explicitly so rate limiting also works in dev
+  // (Better Auth disables it in development by default — we need it on to
+  // run the rate-limit verification script against localhost).
+  rateLimit: {
+    enabled: true,
+    storage: "database",
+    customRules: {
+      "/sign-in/email": { window: 60, max: 10 },
+    },
   },
 
   // ── Verification email ────────────────────────────────────────────────────

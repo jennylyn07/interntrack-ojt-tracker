@@ -40,6 +40,13 @@ export default function RegisterPage() {
       return;
     }
 
+    // Mirror the server-side minPasswordLength: 12 — give instant feedback
+    // instead of waiting for a server round-trip to reject the request.
+    if (password.length < 12) {
+      setError("Password must be at least 12 characters");
+      return;
+    }
+
     setLoading(true);
     try {
       const { error: authError } = await authClient.signUp.email({ email, password, name });

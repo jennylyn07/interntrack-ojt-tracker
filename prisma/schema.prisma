@@ -139,3 +139,17 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
+
+// ── Rate limiting ─────────────────────────────────────────────────────────────
+// Used by Better Auth's rateLimit.storage: "database" option.
+// Better Auth writes one row per (IP × endpoint) key, incrementing count and
+// updating lastRequest on every request. Rows older than the window are ignored.
+// This table must exist before the app boots with storage: "database".
+model RateLimit {
+  id          String @id @default(uuid())
+  key         String
+  count       Int
+  lastRequest BigInt @map("last_request")
+
+  @@map("rate_limit")
+}
