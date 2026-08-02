@@ -18,12 +18,16 @@
 import { useMemo, useState, useRef } from "react";
 import styles from "./ChecklistCard.module.css";
 
+const TITLE_MAX = 200;
+
 export default function ChecklistCard({ items, internshipId }) {
   const initial = useMemo(() => items ?? [], [items]);
   const [localItems, setLocalItems] = useState(initial);
   const [addText, setAddText] = useState("");
   const [adding, setAdding] = useState(false);
   const inputRef = useRef(null);
+  // Synchronous guard — prevents double-add before React re-renders the button.
+  const addingRef = useRef(false);
 
   // -------------------------------------------------------
   // Toggle (existing behaviour — unchanged)
@@ -65,8 +69,11 @@ export default function ChecklistCard({ items, internshipId }) {
   async function handleAdd(e) {
     e.preventDefault();
     const title = addText.trim();
-    if (!title || !internshipId || adding) return;
+    // addingRef is a synchronous guard — the `adding` state check alone can
+    // fail if a second submit fires before React re-renders.
+    if (!title || !internshipId || addingRef.current) return;
 
+    addingRef.current = true;
     setAdding(true);
 
     // Optimistic: insert with a temporary ID
@@ -102,6 +109,7 @@ export default function ChecklistCard({ items, internshipId }) {
       setLocalItems((prev) => prev.filter((it) => it.id !== tempId));
       console.error("Network error:", error);
     } finally {
+      addingRef.current = false;
       setAdding(false);
       inputRef.current?.focus();
     }
@@ -280,6 +288,7 @@ export default function ChecklistCard({ items, internshipId }) {
             onChange={(e) => setAddText(e.target.value)}
             placeholder="Add a requirement…"
             disabled={adding}
+            maxLength={TITLE_MAX}
             className={styles.addInput}
             aria-label="New checklist item title"
           />

@@ -33,10 +33,11 @@ import styles from "./page.module.css";
 export const dynamic = "force-dynamic";
 
 function formatNowLabel(date) {
-  // Teaching note:
-  // We format on the server to provide a consistent initial render.
-  // Later, you might prefer formatting on the client for the user's locale.
+  // This runs on the server, which on Vercel is UTC — not PH time.
+  // We hardcode Asia/Manila so the displayed time is always correct for
+  // the target audience regardless of where the server is located.
   return date.toLocaleString("en-PH", {
+    timeZone: "Asia/Manila",
     weekday: "short",
     month: "short",
     day: "2-digit",

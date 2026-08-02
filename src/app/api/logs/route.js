@@ -10,7 +10,7 @@ import { headers } from "next/headers";
 const createLogSchema = z.object({
   internshipId: z.string().min(1, "Internship ID is required"),
   date: z.string().datetime("Invalid date format"),
-  description: z.string().min(1, "Description is required"),
+  description: z.string().min(1, "Description is required").max(2000, "Description cannot exceed 2000 characters"),
   hours: z.number().positive("Hours must be a positive number"),
 });
 

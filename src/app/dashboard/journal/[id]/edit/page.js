@@ -7,9 +7,12 @@
 // - Pre-populates the form
 // - On submit → PUT /api/journal/[id] → redirect to entry view
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+
+const CONTENT_MAX = 2000;
+const TITLE_MAX = 200;
 
 const MOODS = [
   { value: "GREAT",    emoji: "🌟", label: "Great" },
@@ -27,6 +30,8 @@ export default function EditJournalPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
+  // Synchronous guard — prevents double-submit before React re-renders the button.
+  const submittingRef = useRef(false);
 
   const [form, setForm] = useState({
     date: "",
@@ -65,8 +70,10 @@ export default function EditJournalPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (submittingRef.current) return; // synchronous double-submit guard
     if (!form.content.trim()) { setError("Content cannot be empty."); return; }
 
+    submittingRef.current = true;
     setSubmitting(true);
     setError(null);
 
@@ -75,7 +82,8 @@ export default function EditJournalPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          date: new Date(form.date).toISOString(),
+          // UTC midnight — see journal/new/page.js for reasoning
+          date: form.date + "T00:00:00.000Z",
           title: form.title.trim() || null,
           content: form.content.trim(),
           mood: form.mood,
@@ -90,6 +98,7 @@ export default function EditJournalPage() {
     } catch {
       setError("Network error. Please try again.");
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }
@@ -189,20 +198,31 @@ export default function EditJournalPage() {
               value={form.title}
               onChange={handleChange}
               placeholder="Give this entry a title…"
-              maxLength={200}
+              maxLength={TITLE_MAX}
               style={inputStyle}
             />
           </div>
 
           {/* Content */}
           <div style={fieldStyle}>
-            <label style={labelStyle} htmlFor="edit-content">Entry</label>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <label style={labelStyle} htmlFor="edit-content">Entry</label>
+              <span style={{
+                fontSize: "0.72rem",
+                fontWeight: 600,
+                color: form.content.length > CONTENT_MAX * 0.9 ? "var(--danger)" : "var(--text-muted)",
+                letterSpacing: "0.02em",
+              }}>
+                {form.content.length}/{CONTENT_MAX}
+              </span>
+            </div>
             <textarea
               id="edit-content"
               name="content"
               value={form.content}
               onChange={handleChange}
               rows={10}
+              maxLength={CONTENT_MAX}
               required
               style={{ ...inputStyle, resize: "vertical", lineHeight: 1.65 }}
             />

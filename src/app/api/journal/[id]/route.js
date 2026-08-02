@@ -18,7 +18,7 @@ import { headers } from "next/headers";
 // ── Zod schema for updates ────────────────────────────────────────────────────
 const updateJournalSchema = z.object({
   title: z.string().max(200).optional().nullable(),
-  content: z.string().min(1, "Content is required").optional(),
+  content: z.string().min(1, "Content is required").max(2000, "Content cannot exceed 2000 characters").optional(),
   mood: z.enum(["GREAT", "GOOD", "OKAY", "ROUGH", "TERRIBLE"]).optional(),
   date: z.string().datetime("Invalid date format").optional(),
 });

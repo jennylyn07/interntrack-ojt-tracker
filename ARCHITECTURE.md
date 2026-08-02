@@ -1,6 +1,6 @@
 # Project Architecture & Tech Stack: InternTrack OJT Tracker
 
-> **Revision notes:** Updated 2026-07-28 — Google OAuth (social login) and Resend email verification shipped in commit `0651fd1`. Dashboard UI redesigned to deep neomorphism in `3c5dd53`. `trustedOrigins` added to `auth.js` in the same commit, closing the known gap from Section 11.2. Status table and Section 5 updated to reflect these.
+> **Revision notes:** Updated 2026-08-02 — Double-submit prevention (`useRef` guard on all 4 forms), character limits (Zod + client, 2000 chars for journal/log content, 200 for checklist title), timezone fixes (UTC midnight date storage, explicit `Asia/Manila` in server-side formatters), and local DB schema sync (`JournalEntry` + `rate_limit` applied). Previous revision: Google OAuth and Resend email verification shipped in commit `0651fd1`; dashboard redesigned in `3c5dd53`.
 
 Welcome! If you are preparing for a career in software engineering, this project is built using the same **architectural patterns, frameworks, and tools** that modern tech companies use.
 
@@ -35,11 +35,15 @@ Before anything else — here's what's actually running today versus what's desi
 | Internship history — list, add, edit per-ID | ✅ Built — Stage 2 complete |
 | Internship archive (soft-hide, reversible) | ✅ Built — Stage 3 complete |
 | Internship delete with count-based modal guard | ✅ Built — Stage 3 complete |
+| Journal entry create / view / edit / delete | ✅ Built |
 | Optimistic UI updates | ✅ Built |
 | Input validation with Zod | ✅ Built |
+| Character limits: 2000 chars (journal/log), 200 chars (checklist) | ✅ Built — Zod `.max()` server-side + `maxLength` + live counter client-side |
+| Double-submit prevention | ✅ Built — `useRef` synchronous guard on all 4 forms |
+| Timezone correctness | ✅ Built — UTC midnight storage, explicit `Asia/Manila` in server formatters |
 | Dashboard loading skeleton (`loading.js`) | ✅ Built |
 | Dashboard error boundary (`error.js`) | ✅ Built |
-| Database schema & Prisma migrations | ✅ Built (5 migrations tracked) |
+| Database schema & Prisma migrations | ✅ Built (7 migrations tracked) |
 | Development-safe database connections (singleton) | ✅ Built |
 | Authentication (Better Auth) | ✅ Built — Phase 7 complete |
 | Google OAuth social login | ✅ Built — commit `0651fd1` |
@@ -215,11 +219,16 @@ This project uses two separate databases that **do not sync automatically**:
 Every schema change therefore requires **two explicit steps**, in order:
 
 1. Run `prisma migrate dev` (or write the migration SQL manually, then apply it) — this targets `DIRECT_URL` (Neon) and covers production.
-2. Manually apply the same SQL to local Postgres dev — e.g. via a one-off Node.js script using `pg` directly, since Prisma 7 removed the `--url` flag from `prisma db execute`.
+2. Apply the same migration to local Postgres by overriding `DIRECT_URL` for the local run.
 
-This already bit us once with the `rate_limit` table: `prisma migrate dev` reported success, `prisma generate` ran, but the dev server threw HTTP 500 on every login attempt until the table was also created locally via a `pg` script. The migration was correctly applied to Neon (production was fine), but local dev was broken until the manual step was done.
+**Mitigation (2026-08-02):** `.env.local` now contains a commented-out `DIRECT_URL` pointing at local Postgres, with the one-liner override command. This makes the second step mechanical rather than something that needs to be remembered:
+```powershell
+$env:DIRECT_URL = "postgresql://postgres:ayokomagisip@localhost:5432/ojt_tracker?schema=public"; npx prisma migrate deploy
+```
 
-If this split causes repeated friction, the fix is to point `DATABASE_URL` in `.env` at Neon's pooled URL for all environments and drop the local Postgres entirely — the dev experience is essentially the same, and it eliminates the sync problem.
+This has caused friction three times: `rate_limit` table missing locally after the Better Auth migration, `JournalEntry` table missing locally after the journal migration, and the `DIRECT_URL` env override needing to be typed each time. Both tables were synced 2026-08-02 — local and production schemas are now identical (7 migrations applied).
+
+If this split causes further friction, the fix is to point `DATABASE_URL` in `.env` at Neon's pooled URL for all environments and drop the local Postgres entirely — the dev experience is essentially the same, and it eliminates the sync problem. The primary cost is losing offline dev capability and slightly higher query latency (~20–80ms vs sub-millisecond). For a solo project where the developer is also the only user, the tradeoff favors keeping local Postgres (data isolation for test writes, offline support) but the escape hatch is always available.
 
 
 ---

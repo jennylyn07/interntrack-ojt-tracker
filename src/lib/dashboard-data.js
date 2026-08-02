@@ -6,13 +6,17 @@
 import { prisma } from "@/lib/prisma";
 
 // -------------------------------------------------------
-// Helper: Get today's date range (start and end of today)
+// Helper: Get today's date range in Asia/Manila timezone
 // -------------------------------------------------------
 function getTodayRange() {
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
+  // Determine today's date string in PH time regardless of server timezone.
+  // On Vercel the runtime is UTC, so we must be explicit — otherwise midnight
+  // PH time can be misclassified as 'yesterday' or 'tomorrow'.
+  const phNow = new Date();
+  const phDateStr = phNow.toLocaleDateString("en-CA", { timeZone: "Asia/Manila" }); // "YYYY-MM-DD"
+  // The log date is stored as UTC midnight of the calendar date (YYYY-MM-DDT00:00:00.000Z).
+  const start = new Date(phDateStr + "T00:00:00.000Z");
+  const end = new Date(phDateStr + "T23:59:59.999Z");
   return { start, end };
 }
 

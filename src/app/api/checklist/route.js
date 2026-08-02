@@ -9,7 +9,7 @@ import { headers } from "next/headers";
 // -------------------------------------------------------
 const createChecklistSchema = z.object({
   internshipId: z.string().min(1, "Internship ID is required"),
-  title: z.string().min(1, "Title is required"),
+  title: z.string().min(1, "Title is required").max(200, "Title cannot exceed 200 characters"),
 });
 
 // -------------------------------------------------------

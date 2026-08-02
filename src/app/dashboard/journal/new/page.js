@@ -11,9 +11,13 @@
 // - Loads active internship on mount; shows error if none found
 // - On success → redirects to /dashboard/journal
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
+// ── Constants ────────────────────────────────────────────────────────────────
+const CONTENT_MAX = 2000;
+const TITLE_MAX = 200;
 
 // ── Mood options ──────────────────────────────────────────────────────────────
 const MOODS = [
@@ -31,6 +35,8 @@ export default function NewJournalPage() {
   const [loadingInternship, setLoadingInternship] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  // Synchronous guard — prevents double-submit before React re-renders the button.
+  const submittingRef = useRef(false);
 
   const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
@@ -66,6 +72,9 @@ export default function NewJournalPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    // Synchronous guard — checked before any await so double-clicks are blocked
+    // even if the React state update hasn't re-rendered yet.
+    if (submittingRef.current) return;
     if (!internshipId) {
       setError("Cannot save entry without an active internship.");
       return;
@@ -75,6 +84,7 @@ export default function NewJournalPage() {
       return;
     }
 
+    submittingRef.current = true;
     setSubmitting(true);
     setError(null);
 
@@ -84,7 +94,10 @@ export default function NewJournalPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           internshipId,
-          date: new Date(form.date).toISOString(),
+          // Append T00:00:00.000Z to treat the date picker value as UTC midnight.
+          // Without this, new Date("YYYY-MM-DD") is parsed as local midnight (UTC+8),
+          // storing the wrong UTC date and causing Activity Timeline to show -1 day.
+          date: form.date + "T00:00:00.000Z",
           title: form.title.trim() || null,
           content: form.content.trim(),
           mood: form.mood,
@@ -103,6 +116,7 @@ export default function NewJournalPage() {
     } catch {
       setError("Network error. Please check your connection and try again.");
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }
@@ -195,20 +209,31 @@ export default function NewJournalPage() {
               value={form.title}
               onChange={handleChange}
               placeholder="Give this entry a title…"
-              maxLength={200}
+              maxLength={TITLE_MAX}
               style={inputStyle}
             />
           </div>
 
           {/* Content */}
           <div style={fieldStyle}>
-            <label style={labelStyle} htmlFor="journal-content">What&apos;s on your mind?</label>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <label style={labelStyle} htmlFor="journal-content">What&apos;s on your mind?</label>
+              <span style={{
+                fontSize: "0.72rem",
+                fontWeight: 600,
+                color: form.content.length > CONTENT_MAX * 0.9 ? "var(--danger)" : "var(--text-muted)",
+                letterSpacing: "0.02em",
+              }}>
+                {form.content.length}/{CONTENT_MAX}
+              </span>
+            </div>
             <textarea
               id="journal-content"
               name="content"
               value={form.content}
               onChange={handleChange}
               rows={8}
+              maxLength={CONTENT_MAX}
               placeholder="Write about what you learned, how you felt, challenges you faced, or anything that stood out today…"
               required
               style={{ ...inputStyle, resize: "vertical", lineHeight: 1.65 }}

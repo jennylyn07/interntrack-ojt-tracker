@@ -21,7 +21,7 @@ const createJournalSchema = z.object({
   internshipId: z.string().min(1, "Internship ID is required"),
   date: z.string().datetime("Invalid date format"),
   title: z.string().max(200).optional().nullable(),
-  content: z.string().min(1, "Journal content is required"),
+  content: z.string().min(1, "Journal content is required").max(2000, "Content cannot exceed 2000 characters"),
   mood: z.enum(["GREAT", "GOOD", "OKAY", "ROUGH", "TERRIBLE"]).default("OKAY"),
 });
 

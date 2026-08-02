@@ -9,7 +9,7 @@ import { headers } from "next/headers";
 // -------------------------------------------------------
 const updateLogSchema = z.object({
   date: z.string().datetime("Invalid date format").optional(),
-  description: z.string().min(1, "Description is required").optional(),
+  description: z.string().min(1, "Description is required").max(2000, "Description cannot exceed 2000 characters").optional(),
   hours: z.number().positive("Hours must be a positive number").optional(),
 });
 

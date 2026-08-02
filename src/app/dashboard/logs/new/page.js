@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
+const DESCRIPTION_MAX = 2000;
 
 export default function NewLogPage() {
   const router = useRouter();
@@ -10,6 +12,8 @@ export default function NewLogPage() {
   const [loadingInternship, setLoadingInternship] = useState(true);
   const [internshipId, setInternshipId] = useState(null);
   const [error, setError] = useState(null);
+  // Synchronous guard — prevents double-submit before React re-renders the button.
+  const loadingRef = useRef(false);
 
   const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
@@ -44,11 +48,13 @@ export default function NewLogPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (loadingRef.current) return; // synchronous double-submit guard
     if (!internshipId) {
       setError("Cannot save log without an active internship.");
       return;
     }
 
+    loadingRef.current = true;
     setLoading(true);
     setError(null);
 
@@ -58,7 +64,10 @@ export default function NewLogPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           internshipId,
-          date: new Date(form.date).toISOString(),
+          // UTC midnight — appending T00:00:00.000Z avoids local-timezone shift.
+          // new Date("YYYY-MM-DD") is parsed as local midnight (UTC+8) which stores
+          // the wrong UTC date and causes Activity Timeline to show -1 day.
+          date: form.date + "T00:00:00.000Z",
           description: form.description,
           hours: parseFloat(form.hours),
         }),
@@ -77,6 +86,7 @@ export default function NewLogPage() {
     } catch (err) {
       setError("Network error. Please try again.");
     } finally {
+      loadingRef.current = false;
       setLoading(false);
     }
   }
@@ -146,13 +156,24 @@ export default function NewLogPage() {
 
           {/* Description */}
           <div style={fieldStyle}>
-            <label style={labelStyle} htmlFor="log-description">What did you do today?</label>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <label style={labelStyle} htmlFor="log-description">What did you do today?</label>
+              <span style={{
+                fontSize: "0.72rem",
+                fontWeight: 600,
+                color: form.description.length > DESCRIPTION_MAX * 0.9 ? "var(--danger)" : "var(--text-muted)",
+                letterSpacing: "0.02em",
+              }}>
+                {form.description.length}/{DESCRIPTION_MAX}
+              </span>
+            </div>
             <textarea
               id="log-description"
               name="description"
               value={form.description}
               onChange={handleChange}
               rows={5}
+              maxLength={DESCRIPTION_MAX}
               placeholder="Describe your tasks, learnings, and accomplishments…"
               required
               style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }}
